@@ -1,0 +1,22 @@
+ServerName Alliance - Test Server 1
+GameType Lobby
+AdminPassword test123
+Map bfhd_helms_deep_v2
+CultureTeam1 isengard
+CultureTeam2 rohan
+MaxNumberOfPlayers 500
+MinNumberOfPlayersForMatchStart 0
+NumberOfBotsPerFormation 150
+NumberOfBotsTeam1 0
+NumberOfBotsTeam2 0
+FriendlyFireDamageMeleeFriendPercent 75
+FriendlyFireDamageMeleeSelfPercent 0
+FriendlyFireDamageRangedFriendPercent 75
+FriendlyFireDamageRangedSelfPercent 0
+RoundPreparationTimeLimit 20
+RoundTimeLimit 1800
+RoundTotal 11
+MapTimeLimit 360
+WarmupTimeLimit 1
+SingleSpawn true
+start_game_and_mission
