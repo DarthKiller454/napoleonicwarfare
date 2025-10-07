@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Server", "Alliance
 EndProject
 
 # 
-# The Editor is commented out because it's no longer in use (and is not compilable for Linux).
+# The Editor is commented out because it's no longer in use (and also not compilable for Linux).
 #
 # Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Editor", "Alliance/Alliance.Editor/Alliance.Editor.csproj", "{C211171F-9278-4C9E-994F-E9E5612A5D4E}"
 # EndProject
