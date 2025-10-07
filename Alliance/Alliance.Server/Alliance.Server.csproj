@@ -8,7 +8,6 @@
 		<LangVersion>10.0</LangVersion>
 		<ModuleId>$(MSBuildProjectName)</ModuleId>
 		<ModuleName>Napoleonic Warfare MP</ModuleName>
-		<GameFolder>$(BANNERLORD_SERVER_DIR)</GameFolder>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 	</PropertyGroup>
 
@@ -36,280 +35,280 @@
 
 	<ItemGroup>
 	  <Reference Include="dotnet-aspnet-codegenerator-design">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\dotnet-aspnet-codegenerator-design.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/dotnet-aspnet-codegenerator-design.dll</HintPath>
 	  </Reference>
 	  <Reference Include="jose-jwt">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\jose-jwt.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/jose-jwt.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.AspNetCore.JsonPatch">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.AspNetCore.JsonPatch.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.AspNetCore.JsonPatch.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.AspNetCore.Razor.Language">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.AspNetCore.Razor.Language.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.AspNetCore.Razor.Language.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.CodeAnalysis">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.CodeAnalysis.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.CodeAnalysis.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.CodeAnalysis.CSharp">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.CodeAnalysis.Workspaces">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration.Contracts">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration.Core">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.Core.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.Core.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration.Templating">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll</HintPath>
 	  </Reference>
 	  <Reference Include="MySql.Data">
 	    <HintPath>C:\Program Files (x86)\MySQL\MySQL Connector NET 9.3\MySql.Data.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Newtonsoft.Json">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Newtonsoft.Json.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Newtonsoft.Json.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Newtonsoft.Json.Bson">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\Newtonsoft.Json.Bson.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/Newtonsoft.Json.Bson.dll</HintPath>
 	  </Reference>
 	  <Reference Include="NuGet.Frameworks">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\NuGet.Frameworks.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/NuGet.Frameworks.dll</HintPath>
 	  </Reference>
 	  <Reference Include="nunit.engine">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\nunit.engine.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/nunit.engine.dll</HintPath>
 	  </Reference>
 	  <Reference Include="nunit.framework">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\nunit.framework.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/nunit.framework.dll</HintPath>
 	  </Reference>
 	  <Reference Include="nunitlite">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\nunitlite.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/nunitlite.dll</HintPath>
 	  </Reference>
 	  <Reference Include="Steamworks.NET">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Bannerlord\bin\Win64_Shipping_Client\Steamworks.NET.dll</HintPath>
+	    <HintPath>$(MainBinFolder)/Steamworks.NET.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Composition.AttributedModel">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Composition.AttributedModel.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Composition.AttributedModel.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Composition.Convention">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Composition.Convention.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Composition.Convention.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Composition.Hosting">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Composition.Hosting.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Composition.Hosting.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Composition.Runtime">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Composition.Runtime.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Composition.Runtime.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Composition.TypedParts">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Composition.TypedParts.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Composition.TypedParts.dll</HintPath>
 	  </Reference>
 	  <Reference Include="System.Management">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\System.Management.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/System.Management.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.AchievementSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.AchievementSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.AchievementSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.ActivitySystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.ActivitySystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.ActivitySystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.CampaignSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.CampaignSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.CampaignSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.CampaignSystem.ViewModelCollection">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.CampaignSystem.ViewModelCollection.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.CampaignSystem.ViewModelCollection.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Core">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Core.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Core.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Core.ViewModelCollection">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Core.ViewModelCollection.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Core.ViewModelCollection.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.AccessProvider.Epic">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.AccessProvider.Epic.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.AccessProvider.Epic.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.AccessProvider.GDK">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.AccessProvider.GDK.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.AccessProvider.GDK.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.AccessProvider.GOG">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.AccessProvider.GOG.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.AccessProvider.GOG.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.AccessProvider.Steam">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.AccessProvider.Steam.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.AccessProvider.Steam.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.AccessProvider.Test">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.AccessProvider.Test.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.AccessProvider.Test.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Diamond.ChatSystem.Library">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Diamond.ChatSystem.Library.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Diamond.ChatSystem.Library.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.DotNet">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.DotNet.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.DotNet.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.DotNet.AutoGenerated">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.DotNet.AutoGenerated.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.DotNet.AutoGenerated.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Engine">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Engine.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Engine.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Engine.AutoGenerated">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Engine.AutoGenerated.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Engine.AutoGenerated.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Engine.GauntletUI">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Engine.GauntletUI.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Engine.GauntletUI.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI.CodeGenerator">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.CodeGenerator.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.CodeGenerator.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI.Data">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.Data.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.Data.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI.ExtraWidgets">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.ExtraWidgets.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.ExtraWidgets.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI.PrefabSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.PrefabSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.PrefabSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.GauntletUI.TooltipExtensions">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.GauntletUI.TooltipExtensions.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.GauntletUI.TooltipExtensions.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.InputSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.InputSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.InputSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Library">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Library.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Library.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.LinQuick">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.LinQuick.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.LinQuick.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Localization">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Localization.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Localization.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.ModuleManager">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.ModuleManager.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.ModuleManager.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.AutoGenerated">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.AutoGenerated.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.AutoGenerated.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.DedicatedCommunityServer">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.DedicatedCommunityServer.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.DedicatedCommunityServer.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.DedicatedCustomServer">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.DedicatedCustomServer.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.DedicatedCustomServer.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.DedicatedCustomServer.WebPanel">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.DedicatedCustomServer.WebPanel.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.DedicatedCustomServer.WebPanel.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Diamond">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Diamond.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Diamond.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.DotNetCore">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.DotNetCore.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.DotNetCore.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.GauntletUI.Widgets">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.GauntletUI.Widgets.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.GauntletUI.Widgets.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Helpers">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Helpers.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Helpers.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Launcher.Library">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Launcher.Library.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Launcher.Library.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Launcher.Steam">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Launcher.Steam.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Launcher.Steam.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.ListedServer">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.ListedServer.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.ListedServer.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.ListedServer.MapServer">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.ListedServer.MapServer.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.ListedServer.MapServer.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Multiplayer">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Multiplayer.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Multiplayer.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.Multiplayer.Test">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.Multiplayer.Test.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.Multiplayer.Test.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.MountAndBlade.ViewModelCollection">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.MountAndBlade.ViewModelCollection.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.MountAndBlade.ViewModelCollection.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.NavigationSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.NavigationSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.NavigationSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Network">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Network.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Network.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.ObjectSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.ObjectSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.ObjectSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PlatformService">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PlatformService.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PlatformService.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PlatformService.Epic">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PlatformService.Epic.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PlatformService.Epic.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PlatformService.GOG">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PlatformService.GOG.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PlatformService.GOG.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PlatformService.Steam">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PlatformService.Steam.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PlatformService.Steam.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PlayerServices">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PlayerServices.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PlayerServices.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.PSAI">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.PSAI.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.PSAI.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.SaveSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.SaveSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.SaveSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.ScreenSystem">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.ScreenSystem.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.ScreenSystem.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.ServiceDiscovery.Client">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.ServiceDiscovery.Client.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.ServiceDiscovery.Client.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Starter.DotNetCore">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Starter.DotNetCore.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Starter.DotNetCore.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Starter.DotNetCore.Linux">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Starter.DotNetCore.Linux.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Starter.DotNetCore.Linux.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.Starter.Library">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.Starter.Library.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.Starter.Library.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.TwoDimension">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.TwoDimension.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.TwoDimension.dll</HintPath>
 	  </Reference>
 	  <Reference Include="TaleWorlds.TwoDimension.Standalone">
-	    <HintPath>..\..\..\..\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server\bin\Win64_Shipping_Server\TaleWorlds.TwoDimension.Standalone.dll</HintPath>
+	    <HintPath>$(ServerBinFolder)/TaleWorlds.TwoDimension.Standalone.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

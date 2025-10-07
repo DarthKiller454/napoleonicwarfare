@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Common", "Alliance.Common\Alliance.Common.csproj", "{7FD0414A-DF22-4234-8744-857B5880589A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Common", "Alliance/Alliance.Common/Alliance.Common.csproj", "{7FD0414A-DF22-4234-8744-857B5880589A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Client", "Alliance.Client\Alliance.Client.csproj", "{4A36A725-0920-49A0-AE3E-5037A61EA05B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Client", "Alliance/Alliance.Client/Alliance.Client.csproj", "{4A36A725-0920-49A0-AE3E-5037A61EA05B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Server", "Alliance.Server\Alliance.Server.csproj", "{D7819BB5-5122-4087-A8E2-F9546080C1BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Server", "Alliance/Alliance.Server/Alliance.Server.csproj", "{D7819BB5-5122-4087-A8E2-F9546080C1BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Editor", "Alliance.Editor\Alliance.Editor.csproj", "{C211171F-9278-4C9E-994F-E9E5612A5D4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alliance.Editor", "Alliance/Alliance.Editor/Alliance.Editor.csproj", "{C211171F-9278-4C9E-994F-E9E5612A5D4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
