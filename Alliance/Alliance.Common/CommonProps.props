@@ -1,5 +1,7 @@
 <Project>
   <PropertyGroup>
     <AllianceVersion>0.1.8.6</AllianceVersion>
+    <SteamFolder>$(HOME)/.local/share/Steam/</SteamFolder>
+    <GameFolder>$(SteamFolder)/</GameFolder>
   </PropertyGroup>
 </Project>
