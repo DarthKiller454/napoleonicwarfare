@@ -1,20 +1,105 @@
 <Project>
-  <PropertyGroup>
-    <AllianceVersion>0.1.8.6</AllianceVersion>
-  
-    <!-- Change this to an env var of sorts -->
-    <SteamRoot>$(HOME)/.local/share/Steam</SteamRoot>
+    <PropertyGroup>
+        <AllianceVersion>0.1.8.6</AllianceVersion>
 
-    <GameFolder>$(SteamRoot)/steamapps/common/Mount &amp; Blade II Bannerlord</GameFolder>
-    <ServerFolder>$(SteamRoot)/steamapps/common/Mount &amp; Blade II Dedicated Server</ServerFolder>
+        <!-- Change this to an env var of sorts -->
+        <SteamRoot>$(HOME)/.local/share/Steam/</SteamRoot>
 
-		<MainBinFolder>$(GameFolder)/bin/Win64_Shipping_Client</MainBinFolder>
-    <SystemBinFolder>$(GameFolder)/bin/Win64_Shipping_wEditor</SystemBinFolder>
+        <GameFolder>$(SteamRoot)/steamapps/common/Mount &amp; Blade II Bannerlord/</GameFolder>
+        <ServerFolder>$(SteamRoot)/steamapps/common/Mount &amp; Blade II Dedicated Server/</ServerFolder>
 
-    <ServerBinFolder>$(ServerFolder)/bin/Win64_Shipping_Server</ServerBinFolder>
-  
-		<SandBoxBinFolder>$(GameFolder)/Modules/SandBox/bin/Win64_Shipping_Client</SandBoxBinFolder>
-		<NativeBinFolder>$(GameFolder)/Modules/Native/bin/Win64_Shipping_Client</NativeBinFolder>
-    <MultiplayerBinFolder>$(GameFolder)/Modules/Multiplayer/bin/Win64_Shipping_Client</MultiplayerBinFolder>
-  </PropertyGroup>
+        <MainBinFolder>$(GameFolder)/bin/Win64_Shipping_Client/</MainBinFolder>
+        <SystemBinFolder>$(GameFolder)/bin/Win64_Shipping_wEditor/</SystemBinFolder>
+
+        <ServerBinFolder>$(ServerFolder)/bin/Win64_Shipping_Server/</ServerBinFolder>
+
+        <SandBoxBinFolder>$(GameFolder)/Modules/SandBox/bin/Win64_Shipping_Client/</SandBoxBinFolder>
+        <NativeBinFolder>$(GameFolder)/Modules/Native/bin/Win64_Shipping_Client/</NativeBinFolder>
+        <MultiplayerBinFolder>$(GameFolder)/Modules/Multiplayer/bin/Win64_Shipping_Client/</MultiplayerBinFolder>
+    </PropertyGroup>
+
+
+    <!--
+    This function replaces the version number in SubModule.xml with $(AllianceVersion)
+    There used to be a powershell script doing this, here it is:
+
+    <Exec Command="powershell -Command &quot;
+      $env:AllianceVersion = '$(AllianceVersion)';
+      $env:ProjectDir = '$(ProjectDir)';
+      $xml = [xml](Get-Content ($env:ProjectDir + '_Module\SubModule.xml'));
+      $xml.SelectSingleNode('//Version').SetAttribute('value', 'v' + $env:AllianceVersion);
+      $xml.Save($env:ProjectDir + '_Module\SubModule.xml')
+    &quot;" />
+  -->
+    <UsingTask TaskName="UpdateXmlVersion" TaskFactory="CodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <File ParameterType="System.String" Required="true" />
+            <XPath ParameterType="System.String" Required="true" />
+            <Value ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System.Xml" />
+            <Using Namespace="System" />
+            <Using Namespace="System.Xml" />
+            <Code Type="Fragment" Language="cs">
+      <![CDATA[
+        var doc = new XmlDocument();
+        doc.Load(File);
+        var node = doc.SelectSingleNode(XPath) as XmlElement;
+        if (node == null) { Log.LogError($"XPath '{XPath}' not found in {File}"); return false; }
+        node.SetAttribute("value", Value);
+        doc.Save(File);
+        return true;
+      ]]>
+      </Code>
+        </Task>
+    </UsingTask>
+
+
+    <!-- 
+    This function puts the current time in server name in ds_config_alliance.txt to circumvent duplicated server in TW lobby
+    Here is how it used to look like:
+
+    <Exec Command="powershell -Command &quot;
+        $path = '$(ServerFolder)/Modules/Native/ds_config_alliance.txt';
+        $content = Get-Content $path -Raw; $hour = Get-Date -Format 'HHmmss';
+        $newContent = $content -replace 'ServerName Alliance - Test Server /d+', ('ServerName Alliance - Test Server ' + $hour);
+        Set-Content $path -Value $newContent
+    &quot;" />
+    -->
+    <UsingTask TaskName="UpdateServerName"
+        TaskFactory="CodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <FilePath ParameterType="System.String" Required="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System.Core" />
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Using Namespace="System.Text.RegularExpressions" />
+            <Code Type="Fragment" Language="cs"><![CDATA[
+      if (!File.Exists(FilePath)) { Log.LogMessage($"File not found: {FilePath}"); return true; }
+      var text = File.ReadAllText(FilePath);
+      var hhmmss = DateTime.Now.ToString("HHmmss");
+      var prefix = "ServerName Alliance - Test Server ";
+      var pattern = @"ServerName Alliance - Test Server \d+";
+
+      string replaced;
+      if (Regex.IsMatch(text, pattern))
+        replaced = Regex.Replace(text, pattern, prefix + hhmmss);
+      else
+        replaced = text.Replace("ServerName Alliance - Test Server", prefix + hhmmss);
+
+      if (replaced != text)
+        File.WriteAllText(FilePath, replaced);
+      else
+        Log.LogMessage("No matching text found to replace.");
+
+      return true;
+    ]]></Code>
+        </Task>
+    </UsingTask>
+
 </Project>
