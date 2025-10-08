@@ -102,4 +102,12 @@
 		<Reference Include="TaleWorlds.TwoDimension"><HintPath>$(MainBinFolder)/TaleWorlds.TwoDimension.dll</HintPath></Reference>
 		<Reference Include="TaleWorlds.TwoDimension.Standalone"><HintPath>$(MainBinFolder)/TaleWorlds.TwoDimension.Standalone.dll</HintPath></Reference>
 	</ItemGroup>
+
+
+	<Target Name="RemoveModulePackageDir" AfterTargets="BeforeBuild">
+		<!-- Intentionally empty -->
+	</Target>
+	<Target Name="CopyFiles" AfterTargets="Build">
+		<!-- Intentionally empty -->
+	</Target>
 </Project>

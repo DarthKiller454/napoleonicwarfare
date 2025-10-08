@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(MSBuildProjectDirectory)/../Alliance.Common/CommonProps.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk" DefaultTargets="Build">
+	<Import Project="$(MSBuildProjectDirectory)/../Alliance.Common/CommonProps.props" />
 
 	<PropertyGroup>
 		<Version>$(AllianceVersion)</Version>
@@ -124,6 +124,7 @@
 
 	<!-- Clean folders before build -->
 	<Target Name="RemoveModulePackageDir" AfterTargets="BeforeBuild">
+		<Message Text="[CLIENT] Deleting $(ProjectDir)/obj/$(ModuleName)" Importance="high" />
 		<RemoveDir Directories="$(ProjectDir)/obj/$(ModuleName)" />
 	</Target>
 
@@ -162,14 +163,12 @@
 
 		<Message Text="[CLIENT] Copying to game: $(_Game)" Importance="high" />
 
-		<Copy SourceFiles="@(CommonAssets)" DestinationFiles="@(CommonAssets->'$(_Obj)%(RecursiveDir)%(Filename)%(Extension)')" />
-		<Copy SourceFiles="@(ClientAssets)" DestinationFiles="@(ClientAssets->'$(_Obj)%(RecursiveDir)%(Filename)%(Extension)')" />
-		<Copy SourceFiles="$(TargetPath)" DestinationFiles="$(_Bin)$(TargetFileName)" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(DllFiles)" DestinationFiles="@(DllFiles->'$(_Bin)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
-		<Copy SourceFiles="@(BinFiles)" DestinationFiles="@(BinFiles->'$(_Gdc)%(RecursiveDir)%(Filename)%(Extension)')" />
-		<Copy SourceFiles="@(ObjFiles)" DestinationFiles="@(ObjFiles->'$(_Game)%(RecursiveDir)%(Filename)%(Extension)')" />
-
-		<Exec Command="echo &quot;$(_Game)&quot;"/>
+		<Copy SourceFiles="@(CommonAssets)" DestinationFiles="@(CommonAssets->'$(_Obj)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false"/>
+		<Copy SourceFiles="@(ClientAssets)" DestinationFiles="@(ClientAssets->'$(_Obj)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false"/>
+		<Copy SourceFiles="$(TargetPath)" DestinationFiles="$(_Bin)$(TargetFileName)" SkipUnchangedFiles="false"/>
+		<Copy SourceFiles="@(DllFiles)" DestinationFiles="@(DllFiles->'$(_Bin)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false"/>
+		<Copy SourceFiles="@(BinFiles)" DestinationFiles="@(BinFiles->'$(_Gdc)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false"/>
+		<Copy SourceFiles="@(ObjFiles)" DestinationFiles="@(ObjFiles->'$(_Game)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false"/>
 
 		<!-- 
 			Old copy commands:
