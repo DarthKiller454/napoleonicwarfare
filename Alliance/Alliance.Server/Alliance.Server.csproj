@@ -18,8 +18,6 @@
 
 		<!-- Package References -->
 		<PackageReference Include="MySql.Data" Version="9.4.0" />
-		<PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
-		<PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
 
 		<!-- None??? -->
 		<None Include="Extensions/AIBehavior/BehaviorComponents/ALBehaviorMPCavalry.cs" />

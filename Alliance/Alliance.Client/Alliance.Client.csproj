@@ -19,8 +19,6 @@
 
 		<!-- Package References -->
 		<PackageReference Include="MySql.Data" Version="9.4.0" />
-		<PackageReference Include="RoslynCodeTaskFactory" Version="2.0.7" />
-		<PackageReference Include="System.Xml.Linq" Version="3.5.21022.801" />
 
 		<!-- 
 		COMReferences cannot be used on Linux, besides, Dia2Lib is not even used anywhere in code, so I'm just gonna comment it out.
