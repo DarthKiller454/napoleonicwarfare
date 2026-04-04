@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="$(MSBuildProjectDirectory)\..\Alliance.Common\CommonProps.props" />
+
+	<PropertyGroup>
+		<Version>$(AllianceVersion)</Version>
+		<TargetFramework>net6.0</TargetFramework>
+		<Platforms>x64</Platforms>
+		<LangVersion>10.0</LangVersion>
+		<ModuleId>$(MSBuildProjectName)</ModuleId>
+		<ModuleName>Alliance</ModuleName>
+		<GameFolder>$(BANNERLORD_SERVER_DIR)</GameFolder>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<BuildProjectReferences>false</BuildProjectReferences>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="$(GameFolder)\bin\Win64_Shipping_Server\TaleWorlds.*.dll">
+			<HintPath>%(Identity)</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Alliance.Common\Alliance.Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.27" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.27">
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	    <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.27">
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	    <PrivateAssets>all</PrivateAssets>
+	  </PackageReference>
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.22" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Core\Database\Models\" />
+	</ItemGroup>
+
+	<Target Name="RemoveModulePackageDir" AfterTargets="BeforeBuild">
+		<!-- Clean folders before build -->
+		<Exec Command="rmdir &quot;$(ProjectDir)\obj\$(ModuleName)\&quot; /s /q" />
+	</Target>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<!-- Replace SubModule.xml version with $(AllianceVersion) version -->
+		<Exec Command="powershell -Command &quot; $env:AllianceVersion = '$(AllianceVersion)'; $env:ProjectDir = '$(ProjectDir)'; $xml = [xml](Get-Content ($env:ProjectDir + '_Module\SubModule.xml')); $xml.SelectSingleNode('//Version').SetAttribute('value', 'v' + $env:AllianceVersion); $xml.Save($env:ProjectDir + '_Module\SubModule.xml')&quot;" />		
+		<!-- Prepare the Module folder in \obj first -->
+		<!-- Common assets -->
+		<Exec Command="xcopy &quot;$(ProjectDir)\..\Alliance.Common\_Module&quot; &quot;$(ProjectDir)\obj\$(ModuleName)&quot; /E /C /I /Y /F" />
+		<!-- Server assets -->
+		<Exec Command="xcopy &quot;$(ProjectDir)\_Module&quot; &quot;$(ProjectDir)\obj\$(ModuleName)&quot; /E /C /I /Y /F" />
+		<!-- Copy dll into obj\Module_Server -->
+		<Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<!-- Add required dll -->
+		<Exec Command="xcopy &quot;$(TargetDir)0Harmony.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)MonoMod.Common.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Mono.Cecil.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Alliance.Common.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.Asio.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.Core.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.Midi.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.WinMM.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)NAudio.Wasapi.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Concentus.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Npgsql.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Npgsql.EntityFrameworkCore.PostgreSQL.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Microsoft.EntityFrameworkCore.Relational.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Microsoft.EntityFrameworkCore.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Microsoft.EntityFrameworkCore.Design.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<Exec Command="xcopy &quot;$(TargetDir)Microsoft.EntityFrameworkCore.Abstractions.dll&quot; &quot;$(ProjectDir)\obj\$(ModuleName)\bin\Win64_Shipping_Server\&quot; /C /I /Y /F" />
+		<!-- Move the Module from \obj to game folder -->
+		<Exec Command="xcopy &quot;$(ProjectDir)\obj\$(ModuleName)&quot; &quot;$(GameFolder)\Modules\$(ModuleName)&quot; /E /C /I /Y /F" />
+		<!-- Copy Win launcher (.bat file) to Server/bin/Win64_Shipping_Server folder -->
+		<Exec Command="xcopy &quot;$(ProjectDir)\_Launcher\*.bat&quot; &quot;$(GameFolder)\bin\Win64_Shipping_Server\&quot; /E /C /I /Y /F" />
+		<!-- Copy config (.txt file) to Server/Modules/Native folder -->
+		<Exec Command="xcopy &quot;$(ProjectDir)\_Launcher\*config*.txt&quot; &quot;$(GameFolder)\Modules\Native\&quot; /E /C /I /Y /F" />
+		<!-- Put the current time in server name in ds_config_alliance.txt to circumvent duplicated server in TW lobby... -->
+		<Exec Command="powershell -Command &quot;$path = '$(GameFolder)\Modules\Native\ds_config_alliance.txt'; $content = Get-Content $path -Raw; $hour = Get-Date -Format 'HHmmss'; $newContent = $content -replace 'Test Server \d+', ('Test Server ' + $hour); Set-Content $path -Value $newContent&quot;" />
+	</Target>
+	
+</Project>

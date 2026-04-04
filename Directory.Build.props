@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BANNERLORD_GAME_DIR>E:\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Bannerlord</BANNERLORD_GAME_DIR>
+    <BANNERLORD_SERVER_DIR>E:\Program FIles\Steam\steamapps\common\Mount &amp; Blade II Dedicated Server</BANNERLORD_SERVER_DIR>
+  </PropertyGroup>
+</Project>
