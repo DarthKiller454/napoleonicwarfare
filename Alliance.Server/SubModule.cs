@@ -131,6 +131,7 @@ namespace Alliance.Server
 		{
 			// Add our custom GameModels 
 			gameStarter.AddModel(new ExtendedAgentApplyDamageModel());
+            gameStarter.AddModel(new ExtendedAgentStatCalculateModel());
         }
 
 		public override void OnGameEnd(Game game)

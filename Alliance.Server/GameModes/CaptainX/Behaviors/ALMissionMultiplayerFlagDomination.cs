@@ -1,5 +1,6 @@
 ﻿using Alliance.Client.GameModes.PvC;
 using Alliance.Common.Core.Configuration.Models;
+using Alliance.Common.Extensions.CombatLogic;
 using Alliance.Common.Extensions.FormationEnforcer.Component;
 using Alliance.Common.Extensions.TroopSpawner.Models;
 using Alliance.Common.GameModes.Captain.Behaviors;
@@ -775,11 +776,13 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 		private void HandleRoundEnd(CaptureTheFlagCaptureResultEnum roundResult)
 		{
 			AgentVictoryLogic missionBehavior = Mission.GetMissionBehavior<AgentVictoryLogic>();
-			if (missionBehavior == null)
+            PrefabPlacementMissionLogic cannonRemoveBehavior = Mission.GetMissionBehavior<PrefabPlacementMissionLogic>();
+            if (missionBehavior == null)
 			{
 				Debug.FailedAssert("Agent victory logic should not be null after someone just won/lost!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Missions\\Multiplayer\\MissionNetworkLogics\\MultiplayerGameModeLogics\\ServerGameModeLogics\\FlagMesCouillFDPOriginStory.cs", "HandleRoundEnd", 780);
 				return;
 			}
+			cannonRemoveBehavior.RemoveSpawnedCannons();
 
 			switch (roundResult)
 			{
@@ -794,12 +797,7 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 
 		private void OnPostRoundEnd()
 		{
-			// Go back to Lobby on match end
-			if (RoundController.IsMatchEnding)
-			{
-				GameModeStarter.Instance.StartLobby(MultiplayerOptions.OptionType.Map.GetStrValue(), MultiplayerOptions.OptionType.CultureTeam1.GetStrValue(), MultiplayerOptions.OptionType.CultureTeam2.GetStrValue());
-			}
-			else if (UseGold())
+			if (UseGold())
 			{
 				foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
 				{

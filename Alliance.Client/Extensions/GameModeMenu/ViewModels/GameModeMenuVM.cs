@@ -18,6 +18,7 @@ using Alliance.Common.GameModes.Siege;
 using Alliance.Common.GameModes.TeamDeathmatch;
 using Alliance.Common.GameModes.Halloween;
 using Alliance.Common.GameModes.Deathmatch;
+using Alliance.Common.GameModes.Groupfight;
 using Alliance.Common.GameModes.Story;
 using Alliance.Common.GameModes.Story.Models;
 using System;
@@ -64,6 +65,7 @@ namespace Alliance.Client.Extensions.GameModeMenu.ViewModels
 				new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new TeamDeathmatchGameModeSettings()),
                 new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new DeathmatchGameModeSettings()),
                 new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new HalloweenGameModeSettings()),
+                new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new GroupfightGameModeSettings()),
 
             };
 

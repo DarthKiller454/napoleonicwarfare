@@ -17,12 +17,13 @@ namespace Alliance.Common.Extensions.CombatLogic
         public PrefabDeletionLogic()
         {
         }
-        public override void OnEndMissionInternal()
+        public override void OnClearScene()
         {
             if (Mission.Current?.Scene == null)
                 return;
 
             var allEntitiesWithTag = Mission.Current.Scene.FindEntitiesWithTag("placedbyscript");
+            Mission.Current.Scene.FindWeakEntitiesWithTag("placedbyscript");
             if (allEntitiesWithTag == null)
                 return;
 
@@ -43,6 +44,10 @@ namespace Alliance.Common.Extensions.CombatLogic
 
                         if (isServer)
                         {
+                            GameNetwork.BeginBroadcastModuleEvent();
+                            GameNetwork.WriteMessage(new RemoveEntity(childEntity.GlobalPosition));
+                            GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+
                             GameNetwork.BeginBroadcastModuleEvent();
                             GameNetwork.WriteMessage(new RemoveEntity(childEntity.GlobalPosition));
                             GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);

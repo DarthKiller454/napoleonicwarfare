@@ -1,6 +1,9 @@
 ﻿using Alliance.Common.Extensions.UsableEntity.Behaviors;
+using NetworkMessages.FromServer;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
 
@@ -11,6 +14,65 @@ namespace Alliance.Common.Extensions.CombatLogic
 
         public PrefabPlacementMissionLogic()
         {
+        }
+        public static List<MissionObject> SpawnedCannons = new List<MissionObject>();
+
+        public override void OnMissionTick(float dt)
+        {
+            base.OnMissionTick(dt);
+
+        }
+        public void RemoveSpawnedCannons()
+        {
+            if (Mission.Current?.Scene == null)
+                return;
+            var allEntitiesWithTag = SpawnedCannons.ToList();
+
+
+            if (allEntitiesWithTag == null)
+                return;
+
+            bool isServer = GameNetwork.IsServer;
+
+            foreach (MissionObject entity in allEntitiesWithTag)
+            {
+                if (entity == null)
+                    continue;
+
+                if (entity.GameEntity.HasTag("placedbyscript"))
+                {
+                    if (isServer)
+                    {
+                        GameNetwork.BeginBroadcastModuleEvent();
+                        GameNetwork.WriteMessage(new RemoveMissionObject(entity.Id));
+                        GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+                    }
+                    if (entity.GameEntity != null)
+                    {
+                        entity.GameEntity.Remove(0);
+                    }
+                }
+            }
+            foreach (Agent agent in Mission.Current.Agents)
+            {
+                if (agent == null || !agent.IsActive() || !agent.IsHuman)
+                    continue;
+
+                if (agent.IsUsingGameObject)
+                {
+                    WeakGameEntity usedEntity = agent.CurrentlyUsedGameObject.GameEntity;
+
+                    if (usedEntity == null || usedEntity.Scene == null)
+                    {
+                        agent.StopUsingGameObject();
+                    }
+                }
+            }
+        }
+        public override void OnClearScene()
+        {
+            base.OnClearScene();
+            RemoveSpawnedCannons();
         }
         public override void OnMissileCollisionReaction(
     Mission.MissileCollisionReaction collisionReaction,
@@ -133,11 +195,13 @@ namespace Alliance.Common.Extensions.CombatLogic
             {
                 MissionObject cannonprefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_cannon_12pd_moveable", frame, entity => {});
                 cannonprefab.GameEntity.AddTag("placedbyscript");
+                SpawnedCannons.Add(cannonprefab);
             }
             if (prefabitem != null && prefabitem.Equals("nwf_prefabplacer_howitzercannonbox"))
             {
                 MissionObject howitzerprefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_cannon_howitzer_moveable", frame, entity => {});
                 howitzerprefab.GameEntity.AddTag("placedbyscript");
+                SpawnedCannons.Add(howitzerprefab);
             }
         }
     }
