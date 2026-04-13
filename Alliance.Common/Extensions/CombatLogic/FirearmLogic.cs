@@ -65,12 +65,14 @@ namespace Alliance.Common.Extensions.CombatLogic
                 return;
 
             var item = missile.Weapon.Item;
-            if (item == null || !item.StringId.Contains("cannonball"))
+            if (item == null || !item.StringId.Contains("cannonball") || !item.StringId.Contains("nwf_artillery_shell_howitzer") || !item.StringId.Contains("nwf_artillery_shell_mortar"))
                 return;
 
             if (collisionReaction != Mission.MissileCollisionReaction.BecomeInvisible)
                 return;
 
+            if (item.StringId.Contains("cannonball"))
+            {
             Vec3 velocity = missile.GetVelocity();
             float speed = velocity.Length;
             if (speed < 4f)
@@ -154,6 +156,75 @@ namespace Alliance.Common.Extensions.CombatLogic
                 addRigidBody: false,
                 missile.MissionObjectToIgnore
             );
+            }
+
+
+            if (item.StringId.Contains("nwf_artillery_shell_howitzer") || item.StringId.Contains("nwf_artillery_shell_mortar"))
+            {
+
+                Vec3 velocity = missile.GetVelocity();
+                float speed = velocity.Length;
+                Vec3 missilePos = missile.Entity.GlobalPosition;
+                float terrainZ;
+                Vec3 terrainNormal;
+                Mission.Current.Scene.GetTerrainHeightAndNormal(missilePos.AsVec2, out terrainZ, out terrainNormal);
+
+                float heightDiff = missilePos.z - terrainZ;
+
+                if (heightDiff > 1.0f || heightDiff < -0.5f)
+                    return;
+
+                bool hitTerrain = missile.Entity?.Parent == null;
+                if (!hitTerrain)
+                    return;
+
+                Vec3 spawnPos = missilePos + terrainNormal * 0.07f;
+
+                    item = Game.Current.ObjectManager.GetObject<ItemObject>("nwf_artillery_shell_canister_shot");
+                int pelletCount = 30;
+
+                for (int i = 0; i < pelletCount; i++)
+                {
+                    float angle = MBRandom.RandomFloat * TaleWorlds.Library.MathF.PI * 2f;
+
+                    float radius = MBRandom.RandomFloat;
+
+                    Vec3 tangent = Vec3.CrossProduct(terrainNormal, Vec3.Up);
+                    if (tangent.LengthSquared < 0.001f)
+                        tangent = Vec3.Side;
+
+                    tangent = tangent.NormalizedCopy();
+                    Vec3 bitangent = Vec3.CrossProduct(terrainNormal, tangent).NormalizedCopy();
+
+                    Vec3 dir =
+                        tangent * TaleWorlds.Library.MathF.Cos(angle) * radius +
+                        bitangent * TaleWorlds.Library.MathF.Sin(angle) * radius +
+                        terrainNormal * MBMath.Lerp(0.3f, 1.0f, MBRandom.RandomFloat);
+
+                    dir = dir.NormalizedCopy();
+
+                    // --- SPEED CONTROL ---
+                    float speedFactor = MBMath.Lerp(2.0f, 6.0f, MBRandom.RandomFloat);
+                    float pelletSpeed = speedFactor;
+
+                    // --- ORIENTATION ---
+                    Mat3 orientation = Mat3.Identity;
+                    orientation.f = dir;
+                    orientation.Orthonormalize();
+
+                    Mission.Current.AddCustomMissile(
+                        attackerAgent,
+                        new MissionWeapon(item, null, attackerAgent.Origin?.Banner, 1),
+                        spawnPos,
+                        dir,
+                        orientation,
+                        pelletSpeed,
+                        pelletSpeed,
+                        addRigidBody: false,
+                        missile.MissionObjectToIgnore
+                    );
+                }
+            }
         }
         public static Vec3 ReflectVector(Vec3 incoming, Vec3 normal)
         {
