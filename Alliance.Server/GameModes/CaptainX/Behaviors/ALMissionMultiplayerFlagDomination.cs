@@ -776,13 +776,11 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 		private void HandleRoundEnd(CaptureTheFlagCaptureResultEnum roundResult)
 		{
 			AgentVictoryLogic missionBehavior = Mission.GetMissionBehavior<AgentVictoryLogic>();
-            PrefabPlacementMissionLogic cannonRemoveBehavior = Mission.GetMissionBehavior<PrefabPlacementMissionLogic>();
             if (missionBehavior == null)
 			{
 				Debug.FailedAssert("Agent victory logic should not be null after someone just won/lost!", "C:\\Develop\\MB3\\Source\\Bannerlord\\TaleWorlds.MountAndBlade\\Missions\\Multiplayer\\MissionNetworkLogics\\MultiplayerGameModeLogics\\ServerGameModeLogics\\FlagMesCouillFDPOriginStory.cs", "HandleRoundEnd", 780);
 				return;
 			}
-			cannonRemoveBehavior.RemoveSpawnedCannons();
 
 			switch (roundResult)
 			{

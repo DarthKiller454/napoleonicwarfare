@@ -21,6 +21,8 @@ namespace Alliance.Client.Patch
             patchSuccess &= Patch_MPArmoryVM.Patch();
             patchSuccess &= Patch_Nickname.Patch();
             patchSuccess &= Patch_MissionAgentLabelView.Patch();
+            patchSuccess &= Patch_MPChatLog.Patch();
+            patchSuccess &= Patch_MPChatLineVM.Patch();
 
             if (patchSuccess) Log(SubModule.ModuleId + " - Patches successful", LogLevel.Information);
             return patchSuccess;

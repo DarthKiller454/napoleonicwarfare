@@ -1,4 +1,5 @@
 ﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
 using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
@@ -21,7 +22,7 @@ namespace Alliance.Client.GameModes.SiegeX
                 new FormationStatusView(),
                 new AgentStatusView(),
                 new AL_MainAgentEquipmentController(),
-                new PlayerSpawnMenuView(),
+                new HUDExtensionUIHandlerView(),
 
                 MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
                 MultiplayerViewCreator.CreateMissionMultiplayerPreloadView(mission),

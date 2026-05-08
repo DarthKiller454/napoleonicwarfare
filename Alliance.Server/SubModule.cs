@@ -177,6 +177,7 @@ namespace Alliance.Server
             mission.AddMissionBehavior(new ConditionsBehavior());
             mission.AddMissionBehavior(new ToggleEntitiesBehavior());
             mission.AddMissionBehavior(new NotAllPlayersJoinFixBehavior());
+            mission.AddMissionBehavior(new AutoHorseSlay());
         }
 	}
 }

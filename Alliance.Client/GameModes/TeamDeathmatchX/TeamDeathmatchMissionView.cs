@@ -1,4 +1,6 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
+﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
@@ -19,6 +21,8 @@ namespace Alliance.Client.GameModes.TeamDeathmatchX
             {
                 new FormationStatusView(),
                 new AL_MainAgentEquipmentController(),
+                new AgentStatusView(),
+                new HUDExtensionUIHandlerView(),
 
                 MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
 				MultiplayerViewCreator.CreateMissionMultiplayerPreloadView(mission),

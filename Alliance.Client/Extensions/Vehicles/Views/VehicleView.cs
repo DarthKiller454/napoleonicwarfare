@@ -12,9 +12,6 @@ using TaleWorlds.MountAndBlade.View.Screens;
 
 namespace Alliance.Client.Extensions.Vehicles.Views
 {
-	/// <summary>
-	/// View responsible for the vehicle camera.
-	/// </summary>
 	[DefaultView]
 	public class VehicleView : MissionView, IUseKeyBinder
 	{
@@ -77,9 +74,6 @@ namespace Alliance.Client.Extensions.Vehicles.Views
 
 		public override void EarlyStart()
 		{
-			//cameraKey = HotKeyManager.GetCategory(KeyCategoryId).GetGameKey("key_vehicle_camera");
-			//honkKey = HotKeyManager.GetCategory(KeyCategoryId).GetGameKey("key_vehicle_honk");
-			//lightKey = HotKeyManager.GetCategory(KeyCategoryId).GetGameKey("key_vehicle_light");
 		}
 
 		public override void AfterStart()
@@ -122,18 +116,6 @@ namespace Alliance.Client.Extensions.Vehicles.Views
 
 		private void TickInputs()
 		{
-			//if (Input.IsKeyPressed(cameraKey.KeyboardKey.InputKey) || Input.IsKeyPressed(cameraKey.ControllerKey.InputKey))
-			//{
-			//	SwitchCameraView();
-			//}
-			//if (Input.IsKeyPressed(honkKey.KeyboardKey.InputKey) || Input.IsKeyPressed(honkKey.ControllerKey.InputKey))
-			//{
-			//	Honk();
-			//}
-			//if (Input.IsKeyPressed(lightKey.KeyboardKey.InputKey) || Input.IsKeyPressed(lightKey.ControllerKey.InputKey))
-			//{
-			//	ToggleLights();
-			//}
 		}
 
 		private void SwitchCameraView()
@@ -209,7 +191,6 @@ namespace Alliance.Client.Extensions.Vehicles.Views
 		{
 			Vec3 _cameraPosition = _cameraPositions[_currentCameraIndex];
 			MatrixFrame newCameraFrame = Vehicle.GameEntity.GetGlobalFrame().Advance(_cameraPosition.x).Strafe(_cameraPosition.y).Elevate(_cameraPosition.z);
-			//MatrixFrame newCameraFrame = Vehicle.GameEntity.GetGlobalFrame().Advance(0.38f).Strafe(0.25f).Elevate(1.10f);            
 			SetCameraFrame(newCameraFrame, out _cameraFrame);
 			HandleBasicCameraMovement(dt, ref _cameraFrame);
 			_camera.Frame = _cameraFrame;

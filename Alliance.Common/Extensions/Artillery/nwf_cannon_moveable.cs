@@ -46,10 +46,6 @@ namespace Alliance.Common.Extensions.Artillery
         }
         protected override void OnRemoved(int removeReason)
         {
-            if(base.GameEntity.HasTag("placedbyscript"))
-            { 
-            Mission.Current.OnMissionReset -= ResetPosition;
-            }
             base.OnRemoved(removeReason);
         }
         protected override void OnMissionReset()
@@ -162,31 +158,6 @@ namespace Alliance.Common.Extensions.Artillery
         protected override void UpdateAmmoMesh()
         {
         }
-        void ResetPosition(object sender, PropertyChangedEventArgs e)
-        {
-            if (GameEntity == null || !GameEntity.IsValid)
-                return;
-
-            SyncFrame(starterPosition);
-        }
-        public virtual MatrixFrame SyncFrame(MatrixFrame frame)
-        {
-            if (GameEntity == null || !GameEntity.IsValid)
-                return frame;
-
-            if (Mission.Current == null || Mission.Current.IsMissionEnding)
-                return frame;
-
-            MatrixFrame current = GameEntity.GetFrame();
-
-            if (!frame.origin.NearlyEquals(current.origin) ||
-                !frame.rotation.NearlyEquals(current.rotation))
-            {
-                SetFrameSynched(ref frame, GameNetwork.IsClient);
-            }
-
-            return frame;
-        }
         protected override void OnInit()
         {
             this.DefaultSide = BattleSideEnum.None;
@@ -213,7 +184,6 @@ namespace Alliance.Common.Extensions.Artillery
             base.OnInit();
             this.InitiateMoveSynch();
             starterPosition = GameEntity.GetFrame();
-            Mission.Current.OnMissionReset += ResetPosition;
             this.HitPoint = this.MaxHitPoint;
             this.TimeGapBetweenShootActionAndProjectileLeaving = 0.01f;
             this.TimeGapBetweenShootingEndAndReloadingStart = 2f;
@@ -255,6 +225,7 @@ namespace Alliance.Common.Extensions.Artillery
             }
             this.EnemyRangeToStopUsing = 13f;
             base.State = WeaponState.Idle;
+            this.SetIsDisabledForAI(true);
             this.moverStandingPoint = base.GameEntity.GetFirstChildEntityWithTagRecursive(this.MoverStandingPointTag).GetFirstScriptOfType<StandingPoint>();
             SetScriptComponentToTick(GetTickRequirement());
             if (base.AmmoPickUpPoints != null)
@@ -946,9 +917,6 @@ namespace Alliance.Common.Extensions.Artillery
 
         protected override float GetDetachmentWeightAux(BattleSideEnum side)
         {
-            if (GameEntity != null)
-                return base.GetDetachmentWeightAuxForExternalAmmoWeapons(side);
-            else
                 return 0;
         }
 

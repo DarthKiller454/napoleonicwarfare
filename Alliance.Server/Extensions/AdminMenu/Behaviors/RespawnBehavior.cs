@@ -88,9 +88,6 @@ namespace Alliance.Server.Extensions.AdminMenu.Behaviors
 		/// </summary>
 		private BasicCharacterObject GetCharacterOfPeer(MissionPeer missionPeer)
 		{
-			BasicCharacterObject character = PlayerSpawnMenu.Instance.GetPlayerAssignment(missionPeer.GetNetworkPeer()).Character?.Character;
-			if (character != null) return character;
-
 			if (_playersPreviousCharacter.ContainsKey(missionPeer) && _playersPreviousCharacter[missionPeer].Culture == missionPeer.Culture)
 			{
 				return _playersPreviousCharacter[missionPeer];
@@ -113,19 +110,10 @@ namespace Alliance.Server.Extensions.AdminMenu.Behaviors
 
 		public void SpawnPlayer(NetworkCommunicator playerSelected, MissionPeer missionPeer, BasicCharacterObject basicCharacterObject)
 		{
-			MPOnSpawnPerkHandler perkHandler;
+            MultiplayerClassDivisions.MPHeroClass mPHeroClassForPeer = MultiplayerClassDivisions.GetMPHeroClassForCharacter(basicCharacterObject);
+            MPOnSpawnPerkHandler perkHandler = GetOnSpawnPerkHandler(missionPeer);
 
-			List<int> selectedPerks = PlayerSpawnMenu.Instance.GetPlayerAssignment(playerSelected).Perks;
-			if (selectedPerks != null)
-			{
-				perkHandler = GetOnSpawnPerkHandler(SpawnHelper.GetPerks(basicCharacterObject, selectedPerks));
-			}
-			else
-			{
-				perkHandler = GetOnSpawnPerkHandler(missionPeer);
-			}
-
-			BasicCultureObject _cultureTeam;
+            BasicCultureObject _cultureTeam;
 			MPHeroClass _defaultMpClassTeam;
 
 			if (basicCharacterObject != null)

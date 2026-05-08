@@ -1,4 +1,5 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+﻿using Alliance.Client.Extensions.AgentsCount.Views;
+using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
 using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using System.Collections.Generic;
@@ -23,9 +24,8 @@ namespace Alliance.Client.GameModes.Groupfight
 				// Custom views
 				new FormationStatusView(),
 				new HUDExtensionUIHandlerView(),
-				new AgentStatusView(),
-
-                MultiplayerViewCreator.CreateMultiplayerMissionHUDExtensionUIHandler(),
+                new AgentsCountView(),
+                new AgentStatusView(),
 				// Native battle views
 				MultiplayerViewCreator.CreateMultiplayerMissionOrderUIHandler(mission),
                 ViewCreator.CreateMissionMainAgentEquipmentController(mission),

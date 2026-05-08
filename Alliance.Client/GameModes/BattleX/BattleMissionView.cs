@@ -1,4 +1,5 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+﻿using Alliance.Client.Extensions.AgentsCount.Views;
+using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
 using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using System.Collections.Generic;
@@ -23,9 +24,9 @@ namespace Alliance.Client.GameModes.BattleX
 				// Custom views
 				new FormationStatusView(),
 				new HUDExtensionUIHandlerView(),
-				new AgentStatusView(),
+                new AgentsCountView(),
+                new AgentStatusView(),
 
-                MultiplayerViewCreator.CreateMultiplayerMissionHUDExtensionUIHandler(),
 				// Native battle views
 				MultiplayerViewCreator.CreateMultiplayerMissionOrderUIHandler(mission),
                 ViewCreator.CreateMissionMainAgentEquipmentController(mission),

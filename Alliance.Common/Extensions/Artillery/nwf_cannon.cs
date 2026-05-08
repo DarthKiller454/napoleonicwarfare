@@ -58,7 +58,6 @@ namespace Alliance.Common.Extensions.Artillery
             this.DefaultSide = BattleSideEnum.None;
             this._rotateStandingPoints = new List<CannonStandingPoint>();
         }
-        // Example: Access a protected/internal property
         protected T GetProtectedProperty<T>(string propertyName)
         {
             var property = typeof(Mangonel).GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Instance);
@@ -81,5 +80,14 @@ namespace Alliance.Common.Extensions.Artillery
         }
 
         private List<CannonStandingPoint> _rotateStandingPoints;
+    }
+    public class BallistaCannon : Ballista
+    {
+        public BallistaCannon()
+            {
+
+            }
+
+
     }
 }

@@ -65,13 +65,14 @@ namespace Alliance.Common.Patch
 			patchSuccess &= Patch_GameNetworkMessage.Patch();
             patchSuccess &= Patch_DestructableComponent_OnHit.Patch();
             patchSuccess &= Patch_MissionPeer.Patch();
-            patchSuccess &= Patch_UsableMachine_OnInit.Patch();
+            //patchSuccess &= Patch_UsableMachine_OnInit.Patch();
 			
 			patchSuccess &= Patch_KeyBinder.Patch();
 			//patchSuccess &= Patch_AdvancedCombat.Patch();
 			patchSuccess &= Patch_ActionSetCode.Patch();
 			patchSuccess &= Patch_MBObjectManager.Patch();
 			patchSuccess &= Patch_Banner.Patch();
+            patchSuccess &= Patch_WeakGameEntity.Patch();
             //patchSuccess &= Patch_RangedSiegeWeapon_DetermineDefaultBattleSide.Patch();
 #if !SERVER && DEBUG
 			patchSuccess &= Patch_WidgetExtensions.Patch();

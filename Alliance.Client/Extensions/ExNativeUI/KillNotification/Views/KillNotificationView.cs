@@ -122,11 +122,11 @@ namespace Alliance.Client.Extensions.ExNativeUI.KillNotification.Views
 		{
 			base.OnAgentRemoved(affectedAgent, affectorAgent, agentState, killingBlow);
 			// Check if kill feed is enabled
-			if (!Config.Instance.KillFeedEnabled || !_isGeneralFeedEnabled || GameNetwork.IsDedicatedServer || affectorAgent == null || !affectedAgent.IsHuman || agentState != AgentState.Killed && agentState != AgentState.Unconscious)
-			{
+			//if (!Config.Instance.KillFeedEnabled || !_isGeneralFeedEnabled || GameNetwork.IsDedicatedServer || affectorAgent == null || !affectedAgent.IsHuman || agentState != AgentState.Killed && agentState != AgentState.Unconscious)
+			//{
 				return;
-			}
-			_dataSource.OnAgentRemoved(affectedAgent, affectorAgent, _isPersonalFeedEnabled);
+			//}
+			//_dataSource.OnAgentRemoved(affectedAgent, affectorAgent, _isPersonalFeedEnabled);
 		}
 
 		public KillNotificationView()

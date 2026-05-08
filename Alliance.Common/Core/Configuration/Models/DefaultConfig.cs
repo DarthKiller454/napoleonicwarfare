@@ -67,8 +67,9 @@ namespace Alliance.Common.Core.Configuration.Models
 		public bool ShowWeaponTrail = false;
 		[ConfigProperty(true, "Enable Kill Feed", "Enable the kill feed on top right of the screen.")]
 		public bool KillFeedEnabled = true;
-
-		[ConfigProperty(true, "Time before flags removal", "Number of seconds before the removal of flags.", 0, 3600)]
+        //[ConfigProperty(true, "Slay Horses", "Slays horses after a few minutes of being riderless.")]
+        //public bool AutoHorseSlay = false;
+        [ConfigProperty(true, "Time before flags removal", "Number of seconds before the removal of flags.", 0, 3600)]
 		public int TimeBeforeFlagRemoval = 300;
 		[ConfigProperty(true, "Morale multiplier for flag", "More gain/loss is multiplied by this amount for each flag controlled.", 0, 10f)]
 		public float MoraleMultiplierForFlag = 1f;

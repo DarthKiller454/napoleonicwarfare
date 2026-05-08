@@ -1,4 +1,6 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
+﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
@@ -17,7 +19,6 @@ namespace Alliance.Client.GameModes.DeathmatchX
         {
             List<MissionView> missionViews = new List<MissionView>
             {
-                new FormationStatusView(),
                 new AL_MainAgentEquipmentController(),
 
                 MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
@@ -32,13 +33,14 @@ namespace Alliance.Client.GameModes.DeathmatchX
                 MultiplayerViewCreator.CreateMissionScoreBoardUIHandler(mission, false),
                 MultiplayerViewCreator.CreateLobbyEquipmentUIHandler(),
                 MultiplayerViewCreator.CreatePollProgressUIHandler(),
-                MultiplayerViewCreator.CreateMultiplayerMissionHUDExtensionUIHandler(),
                 MultiplayerViewCreator.CreateMultiplayerMissionDeathCardUIHandler(null),
                 ViewCreator.CreateOptionsUIHandler(),
                 ViewCreator.CreateMissionMainAgentEquipDropView(mission),
                 MultiplayerViewCreator.CreateMultiplayerAdminPanelUIHandler(),
                 ViewCreator.CreateMissionBoundaryCrossingView(),
                 new MissionBoundaryWallView(),
+                new HUDExtensionUIHandlerView(),
+                new AgentStatusView(),
                 new MissionItemContourControllerView(),
                 new MissionAgentContourControllerView()
             };

@@ -35,7 +35,7 @@ namespace Alliance.Server.Patch
 			patchSuccess &= Patch_Module.Patch();
 			patchSuccess &= Patch_ThreatSeeker.Patch();
 
-			if (Config.Instance.ShowOfficers)
+            if (Config.Instance.ShowOfficers)
 			{
 				patchSuccess &= Patch_Username.Patch();
 			}

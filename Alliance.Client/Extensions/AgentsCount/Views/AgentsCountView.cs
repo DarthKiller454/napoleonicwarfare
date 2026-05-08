@@ -36,10 +36,15 @@ namespace Alliance.Client.Extensions.AgentsCount.Views
         // Calculated by client
         public void RefreshAgentsAlive()
         {
-            if (GameNetwork.MyPeer?.GetComponent<MissionPeer>()?.Team?.ActiveAgents?.Count != null)
-            {
-                _dataSource.AgentsAlive = GameNetwork.MyPeer.GetComponent<MissionPeer>().Team.ActiveAgents.Count;
-            }
+            Mission mission = Mission.Current;
+            if (mission == null)
+                return;
+
+            Team attackerTeam = mission.AttackerTeam;
+            Team defenderTeam = mission.DefenderTeam;
+
+            _dataSource.AgentsAlive = attackerTeam?.ActiveAgents?.Count ?? 0;
+            _dataSource.AgentsDead = defenderTeam?.ActiveAgents?.Count ?? 0;
         }
 
         // Calculated by server, called by HandleServerEventAgentsCountMessage to get correct total kill count
@@ -57,6 +62,12 @@ namespace Alliance.Client.Extensions.AgentsCount.Views
         {
             RefreshAgentsAlive();
         }
+
+        public override void OnAgentTeamChanged(Team prevTeam, Team newTeam, Agent agent)
+        {
+            RefreshAgentsAlive();
+        }
+
 
         public override void OnMissionScreenTick(float dt)
         {

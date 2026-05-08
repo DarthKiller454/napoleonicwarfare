@@ -247,16 +247,6 @@ namespace Alliance.Client.Extensions.ExNativeUI.MarkerUIHandler.ViewModels
 			{
 				return;
 			}
-
-			SiegeEngineTargets.Clear();
-			foreach (WeakGameEntity item in Mission.Current.GetActiveEntitiesWithScriptComponentOfType<SiegeWeapon>())
-			{
-				SiegeWeapon firstScriptOfType = item.GetFirstScriptOfType<SiegeWeapon>();
-				if (newTeam.Side == firstScriptOfType.Side)
-				{
-					SiegeEngineTargets.Add(new MissionSiegeEngineMarkerTargetVM(firstScriptOfType));
-				}
-			}
 		}
 
 		private void UpdateTargetScreenPositions()

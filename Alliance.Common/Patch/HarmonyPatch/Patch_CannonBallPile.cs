@@ -41,7 +41,7 @@ namespace Alliance.Common.Patch.HarmonyPatch
         {
             try
             {
-                if (__instance?.GameEntity.HasTag("placedbyscript") != true)
+                if (__instance?.GameEntity.HasTag("cannonscript") != true)
                     return;
 
                 Type usableMachineType = typeof(UsableMachine);

@@ -19,7 +19,7 @@ namespace Alliance.Common.GameModels
     /// GameModel calculating agents stats.
     /// Apply different multiplier on stats depending on agents AI difficulty or player formation.    
     /// </summary>
-    public class ExtendedAgentStatCalculateModel : CustomBattleAgentStatCalculateModel
+    public class ExtendedAgentStatCalculateModel : MultiplayerAgentStatCalculateModel
     {
 
         public ExtendedAgentStatCalculateModel()
@@ -40,6 +40,14 @@ namespace Alliance.Common.GameModels
                 }   
             }
             return base.GetMaxCameraZoom(agent);
+        }
+        public override void UpdateAgentStats(Agent agent, AgentDrivenProperties agentDrivenProperties)
+        {
+            base.UpdateAgentStats(agent, agentDrivenProperties);
+            if (agent.IsActive())
+            {
+                agentDrivenProperties.ReloadMovementPenaltyFactor = 100f;
+            }
         }
     }
 }

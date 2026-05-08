@@ -27,7 +27,7 @@ namespace Alliance.Client.GameModes.BattleX
 			{
 				// Custom behaviors
 				new FormationBehavior(),
-				new MissionMultiplayerGameModeFlagDominationClient(),
+				new ALMissionMultiplayerFlagDominationClient(),
 
 				// Native battle behaviors
 				new MultiplayerBattleMissionAgentInteractionLogic(),

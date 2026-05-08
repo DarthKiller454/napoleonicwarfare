@@ -32,26 +32,20 @@ namespace Alliance.Common.Extensions.CombatLogic
             if (allEntitiesWithTag == null)
                 return;
 
-            bool isServer = GameNetwork.IsServer;
-
             foreach (MissionObject entity in allEntitiesWithTag)
             {
-                if (entity == null)
+                if (entity == null || entity.GameEntity == null || !entity.GameEntity.HasTag("cannonbyscript"))
                     continue;
-
-                if (entity.GameEntity.HasTag("placedbyscript"))
-                {
-                    if (isServer)
+                    if (!GameNetwork.IsClientOrReplay)
                     {
                         GameNetwork.BeginBroadcastModuleEvent();
                         GameNetwork.WriteMessage(new RemoveMissionObject(entity.Id));
-                        GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
-                    }
-                    if (entity.GameEntity != null)
+                        GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None); 
+                }
+                    if (entity != null && entity.GameEntity != null)
                     {
                         entity.GameEntity.Remove(0);
                     }
-                }
             }
             foreach (Agent agent in Mission.Current.Agents)
             {
@@ -72,8 +66,7 @@ namespace Alliance.Common.Extensions.CombatLogic
         public override void OnClearScene()
         {
             base.OnClearScene();
-            RemoveSpawnedCannons();
-        }
+        }   
         public override void OnMissileCollisionReaction(
     Mission.MissileCollisionReaction collisionReaction,
     Agent attackerAgent,
@@ -155,7 +148,6 @@ namespace Alliance.Common.Extensions.CombatLogic
                 return;
 
             MatrixFrame frame = new MatrixFrame(orientation, position);
-            string Prefab = prefabitem;
             if (prefabitem != null && prefabitem.Equals("nwf_prefabplacer_12pdbox"))
             {
                 MissionObject prefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_new_ammobox_12pd", frame, entity => {});
@@ -194,13 +186,13 @@ namespace Alliance.Common.Extensions.CombatLogic
             if (prefabitem != null && prefabitem.Equals("nwf_prefabplacer_12pdcannonbox"))
             {
                 MissionObject cannonprefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_cannon_12pd_moveable", frame, entity => {});
-                cannonprefab.GameEntity.AddTag("placedbyscript");
+                cannonprefab.GameEntity.AddTag("cannonbyscript");
                 SpawnedCannons.Add(cannonprefab);
             }
             if (prefabitem != null && prefabitem.Equals("nwf_prefabplacer_howitzercannonbox"))
             {
                 MissionObject howitzerprefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_cannon_howitzer_moveable", frame, entity => {});
-                howitzerprefab.GameEntity.AddTag("placedbyscript");
+                howitzerprefab.GameEntity.AddTag("cannonbyscript");
                 SpawnedCannons.Add(howitzerprefab);
             }
         }

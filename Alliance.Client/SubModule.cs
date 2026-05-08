@@ -1,4 +1,6 @@
 ﻿using Alliance.Client.Core;
+using Alliance.Client.Core.Providers;
+using Alliance.Client.Extensions.Bracing.Views;
 using Alliance.Client.Extensions.CustomName;
 using Alliance.Client.Extensions.CustomScripts.Handlers;
 using Alliance.Client.Extensions.FakeArmy.Behaviors;
@@ -65,6 +67,7 @@ namespace Alliance.Client
             KeyBinder.RegisterContexts();
 
             AddGameModes();
+            VisualOrderFactory.RegisterProvider(new AllianceVisualOrderProvider());
         }
 
 		protected override void InitializeGameStarter(Game game, IGameStarter starterObject)
@@ -122,12 +125,11 @@ namespace Alliance.Client
             mission.AddMissionBehavior(new CoreBehavior());
             mission.AddMissionBehavior(new ClientAutoHandler());
 			mission.AddMissionBehavior(new UsableEntityBehavior());
-			//mission.AddMissionBehavior(new PBVoiceChatHandlerClient());
 			mission.AddMissionBehavior(new FakeArmyBehavior());
             mission.AddMissionBehavior(new SyncMoveableArty());
 			mission.AddMissionBehavior(new FirearmsMissionLogic());
             mission.AddMissionBehavior(new PrefabPlacementMissionLogic());
-            //mission.AddMissionBehavior(new PrefabDeletionLogic()); might become deprecated
+            mission.AddMissionBehavior(new KillfeedMissionLogic());
             mission.AddMissionBehavior(new AllianceAgentVisualSpawnComponent());
         }
     }
