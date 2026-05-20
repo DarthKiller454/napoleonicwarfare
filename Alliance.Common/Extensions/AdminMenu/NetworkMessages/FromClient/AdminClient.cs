@@ -21,11 +21,13 @@ namespace Alliance.Common.Extensions.AdminMenu.NetworkMessages.FromClient
 		public bool KillPlayers { get; set; }
 		public bool KillBots { get; set; }
 		public bool Kick { get; set; }
-		public bool Ban { get; set; }
+        public bool Ban { get; set; }
 		public bool Unban { get; set; }
 		public bool ToggleMutePlayer { get; set; }
-		public bool Respawn { get; set; }
-		public bool SetSudo { get; set; }
+        public bool Reset { get; set; }
+        public bool Respawn { get; set; }
+        public bool Revive { get; set; }
+        public bool SetSudo { get; set; }
 		public bool SetAdmin { get; set; }
 		public bool SetVIP { get; set; }
 		public bool ToggleInvulnerable { get; set; }
@@ -50,8 +52,10 @@ namespace Alliance.Common.Extensions.AdminMenu.NetworkMessages.FromClient
 			WriteBoolToPacket(Ban);
 			WriteBoolToPacket(Unban);
 			WriteBoolToPacket(ToggleMutePlayer);
-			WriteBoolToPacket(Respawn);
-			WriteBoolToPacket(SetSudo);
+            WriteBoolToPacket(Reset);
+            WriteBoolToPacket(Respawn);
+            WriteBoolToPacket(Revive);
+            WriteBoolToPacket(SetSudo);
 			WriteBoolToPacket(SetAdmin);
 			WriteBoolToPacket(SetVIP);
 			WriteBoolToPacket(ToggleInvulnerable);
@@ -78,8 +82,10 @@ namespace Alliance.Common.Extensions.AdminMenu.NetworkMessages.FromClient
 			Ban = ReadBoolFromPacket(ref bufferReadValid);
 			Unban = ReadBoolFromPacket(ref bufferReadValid);
 			ToggleMutePlayer = ReadBoolFromPacket(ref bufferReadValid);
-			Respawn = ReadBoolFromPacket(ref bufferReadValid);
-			SetSudo = ReadBoolFromPacket(ref bufferReadValid);
+            Reset = ReadBoolFromPacket(ref bufferReadValid);
+            Respawn = ReadBoolFromPacket(ref bufferReadValid);
+            Revive = ReadBoolFromPacket(ref bufferReadValid);
+            SetSudo = ReadBoolFromPacket(ref bufferReadValid);
 			SetAdmin = ReadBoolFromPacket(ref bufferReadValid);
 			SetVIP = ReadBoolFromPacket(ref bufferReadValid);
 			ToggleInvulnerable = ReadBoolFromPacket(ref bufferReadValid);

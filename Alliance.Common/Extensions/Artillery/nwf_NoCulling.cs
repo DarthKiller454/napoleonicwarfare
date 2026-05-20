@@ -14,7 +14,7 @@ public class nwf_NoCulling : ScriptComponentBehavior
         ApplyRecursive(GameEntity);
     }
 
-    private void ApplyRecursive(WeakGameEntity entity)
+    private static void ApplyRecursive(WeakGameEntity entity)
     {
         // Get existing flags
         var flags = entity.EntityFlags;

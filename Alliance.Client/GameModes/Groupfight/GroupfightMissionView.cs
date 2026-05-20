@@ -23,9 +23,9 @@ namespace Alliance.Client.GameModes.Groupfight
 			{
 				// Custom views
 				new FormationStatusView(),
-				new HUDExtensionUIHandlerView(),
                 new AgentsCountView(),
                 new AgentStatusView(),
+                new HUDExtensionUIHandlerView(),
 				// Native battle views
 				MultiplayerViewCreator.CreateMultiplayerMissionOrderUIHandler(mission),
                 ViewCreator.CreateMissionMainAgentEquipmentController(mission),

@@ -1,6 +1,7 @@
 ﻿using Alliance.Common.Core.Security.Extension;
 using Alliance.Common.Extensions.PlayerSpawn.Models;
 using Alliance.Common.Extensions.TroopSpawner.Utilities;
+using Alliance.Server.Patch.HarmonyPatch;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.Core;
@@ -78,15 +79,25 @@ namespace Alliance.Server.Extensions.AdminMenu.Behaviors
 
 			if (CanPlayerBeRespawned(missionPeer) && playerSelected.IsSynchronized && (missionPeer.Team == Mission.AttackerTeam || missionPeer.Team == Mission.DefenderTeam))
 			{
-                _pendingRespawns.Add(missionPeer);
                 SpawnPlayer(playerSelected, missionPeer, GetCharacterOfPeer(missionPeer));
 			}
-		}
+        }
+        public void RevivePlayer(NetworkCommunicator playerSelected)
+        {
 
-		/// <summary>
-		/// Return character last used by peer if they have same culture. Otherwise return null.
-		/// </summary>
-		private BasicCharacterObject GetCharacterOfPeer(MissionPeer missionPeer)
+            MissionPeer missionPeer = playerSelected.GetComponent<MissionPeer>();
+
+            if (CanPlayerBeRespawned(missionPeer) && playerSelected.IsSynchronized && (missionPeer.Team == Mission.AttackerTeam || missionPeer.Team == Mission.DefenderTeam))
+            {
+                _pendingRespawns.Add(missionPeer);
+                SpawnPlayer(playerSelected, missionPeer, GetCharacterOfPeer(missionPeer));
+            }
+        }
+
+        /// <summary>
+        /// Return character last used by peer if they have same culture. Otherwise return null.
+        /// </summary>
+        private BasicCharacterObject GetCharacterOfPeer(MissionPeer missionPeer)
 		{
 			if (_playersPreviousCharacter.ContainsKey(missionPeer) && _playersPreviousCharacter[missionPeer].Culture == missionPeer.Culture)
 			{
@@ -116,27 +127,51 @@ namespace Alliance.Server.Extensions.AdminMenu.Behaviors
             BasicCultureObject _cultureTeam;
 			MPHeroClass _defaultMpClassTeam;
 
-			if (basicCharacterObject != null)
-				SpawnHelper.SpawnPlayer(playerSelected, perkHandler, basicCharacterObject);
-			else
-
+            SpawnComponent spawnComponent = Mission.Current.GetMissionBehavior<SpawnComponent>();
+			SpawningBehaviorBase spawningBehavior = spawnComponent.SpawningBehavior;
+            if (basicCharacterObject != null)
 			{
-				if (missionPeer.Team == Mission.AttackerTeam)
+                if (spawningBehavior is BattleXSpawningBehavior battleXSpawningBehavior)
+                {
+                    battleXSpawningBehavior.BeginRespawnSelection(missionPeer);
+                    return;
+                }
+				else
+					SpawnHelper.SpawnPlayer(playerSelected, perkHandler, basicCharacterObject);
+            }
+            else
+
+            {
+                if (missionPeer.Team == Mission.AttackerTeam)
 				{
 					_cultureTeam = MBObjectManager.Instance.GetObject<BasicCultureObject>(MultiplayerOptions.OptionType.CultureTeam1.GetStrValue());
-					_defaultMpClassTeam = MultiplayerClassDivisions.GetMPHeroClasses(_cultureTeam).FirstOrDefault();
+						
+                        _defaultMpClassTeam = MultiplayerClassDivisions.GetMPHeroClasses(_cultureTeam).FirstOrDefault();
 
-					SpawnHelper.SpawnPlayer(playerSelected, perkHandler, _defaultMpClassTeam.HeroCharacter);
-				}
+                    if (spawningBehavior is BattleXSpawningBehavior battleXSpawningBehavior)
+                    {
+                        battleXSpawningBehavior.BeginRespawnSelection(missionPeer);
+                        return;
+                    }
+                    else
+                        SpawnHelper.SpawnPlayer(playerSelected, perkHandler, basicCharacterObject);
+                }
 				else if (missionPeer.Team == Mission.DefenderTeam)
 				{
 					_cultureTeam = MBObjectManager.Instance.GetObject<BasicCultureObject>(MultiplayerOptions.OptionType.CultureTeam2.GetStrValue());
 					_defaultMpClassTeam = MultiplayerClassDivisions.GetMPHeroClasses(_cultureTeam).FirstOrDefault();
 
-					SpawnHelper.SpawnPlayer(playerSelected, perkHandler, _defaultMpClassTeam.HeroCharacter);
 
-				}
-			}
+                    if (spawningBehavior is BattleXSpawningBehavior battleXSpawningBehavior)
+                    {
+                        battleXSpawningBehavior.BeginRespawnSelection(missionPeer);
+                        return;
+                    }
+                    else
+                        SpawnHelper.SpawnPlayer(playerSelected, perkHandler, basicCharacterObject);
+
+                }
+            }
 		}
 
         public override void OnAgentBuild(Agent agent, Banner banner)

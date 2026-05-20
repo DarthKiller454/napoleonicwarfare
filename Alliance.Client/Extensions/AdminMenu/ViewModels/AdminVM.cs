@@ -642,16 +642,30 @@ namespace Alliance.Client.Extensions.AdminMenu.ViewModels
 			if (_selectedPeer == null) { return; }
 			ClientAdminMenuMsg.SendMessageToServer(new AdminClient() { ToggleMutePlayer = true, PlayerSelected = _selectedPeer.PlayerId });
 			_selectedPeer.IsMuted = !_selectedPeer.IsMuted;
-		}
+        }
 
-		[UsedImplicitly]
+        [UsedImplicitly]
+        public void Reset()
+        {
+            if (_selectedPeer == null) { return; }
+            ClientAdminMenuMsg.SendMessageToServer(new AdminClient() { Reset = true, PlayerSelected = PlayerId.Empty });
+        }
+
+        [UsedImplicitly]
 		public void Respawn()
 		{
 			if (_selectedPeer == null) { return; }
 			ClientAdminMenuMsg.SendMessageToServer(new AdminClient() { Respawn = true, PlayerSelected = _selectedPeer.PlayerId });
-		}
+        }
 
-		[UsedImplicitly]
+        [UsedImplicitly]
+        public void Revive()
+        {
+            if (_selectedPeer == null) { return; }
+            ClientAdminMenuMsg.SendMessageToServer(new AdminClient() { Revive = true, PlayerSelected = _selectedPeer.PlayerId });
+        }
+
+        [UsedImplicitly]
 		public void TeleportToPlayer()
 		{
 			if (_selectedPeer == null) { return; }

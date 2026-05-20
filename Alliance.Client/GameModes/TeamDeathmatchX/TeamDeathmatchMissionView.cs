@@ -24,6 +24,7 @@ namespace Alliance.Client.GameModes.TeamDeathmatchX
                 new AgentStatusView(),
                 new HUDExtensionUIHandlerView(),
 
+
                 MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
 				MultiplayerViewCreator.CreateMissionMultiplayerPreloadView(mission),
 				MultiplayerViewCreator.CreateMultiplayerTeamSelectUIHandler(),
@@ -33,6 +34,7 @@ namespace Alliance.Client.GameModes.TeamDeathmatchX
                 ViewCreator.CreateMissionMainAgentCheerBarkControllerView(mission),
 				MultiplayerViewCreator.CreateMissionMultiplayerEscapeMenu("TeamDeathmatch"),
                 MultiplayerViewCreator.CreateMultiplayerMissionOrderUIHandler(mission),
+                ViewCreator.CreateOrderTroopPlacerView(null),
                 MultiplayerViewCreator.CreateMissionScoreBoardUIHandler(mission, false),
 				MultiplayerViewCreator.CreateMultiplayerEndOfRoundUIHandler(),
 				MultiplayerViewCreator.CreateMultiplayerEndOfBattleUIHandler(),

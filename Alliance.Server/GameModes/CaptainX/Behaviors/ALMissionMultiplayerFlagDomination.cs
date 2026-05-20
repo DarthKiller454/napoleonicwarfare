@@ -527,6 +527,7 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 			CaptainXMsg.SendCapturedPointMsgToAllPeers(new FlagDominationCapturePointMessage(flagIndex, -1));
 			return flagIndex;
 		}
+		
 
 		public override void OnClearScene()
 		{
@@ -548,8 +549,7 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 			_nextTimeToCheckForPointRemoval = float.MinValue;
 			_flagRemovalOccured = false;
 		}
-
-		public override bool CheckIfOvertime()
+        public override bool CheckIfOvertime()
 		{
 			if (!_flagRemovalOccured)
 			{
@@ -660,7 +660,6 @@ namespace Alliance.Server.GameModes.CaptainX.Behaviors
 		{
 			return false;
 		}
-
 		private void OnWarmupEnding()
 		{
 			NotificationsComponent.WarmupEnding();

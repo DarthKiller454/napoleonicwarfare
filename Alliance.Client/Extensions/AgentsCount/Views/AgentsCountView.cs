@@ -42,15 +42,21 @@ namespace Alliance.Client.Extensions.AgentsCount.Views
 
             Team attackerTeam = mission.AttackerTeam;
             Team defenderTeam = mission.DefenderTeam;
+            Team enemyTeam = mission.AttackerTeam;
 
-            _dataSource.AgentsAlive = attackerTeam?.ActiveAgents?.Count ?? 0;
-            _dataSource.AgentsDead = defenderTeam?.ActiveAgents?.Count ?? 0;
-        }
+            Team myTeam = GameNetwork.MyPeer.GetComponent<MissionPeer>().Team;
 
-        // Calculated by server, called by HandleServerEventAgentsCountMessage to get correct total kill count
-        public void RefreshAgentsDead(int nbDead)
-        {
-            _dataSource.AgentsDead = nbDead;
+            if (myTeam != null && myTeam.IsAttacker)
+            {
+                enemyTeam = defenderTeam;
+            }
+            else
+            {
+                enemyTeam = attackerTeam;
+            }
+
+            _dataSource.AgentsAlive = myTeam?.ActiveAgents?.Count ?? 0;
+            _dataSource.AgentsDead = enemyTeam?.ActiveAgents?.Count ?? 0;
         }
 
         public override void OnAgentBuild(Agent agent, Banner banner)

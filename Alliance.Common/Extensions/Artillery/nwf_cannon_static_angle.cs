@@ -397,7 +397,7 @@ namespace Alliance.Common.Extensions.Artillery
             float sign = CrossProduct2D(currF, startF) < 0f ? -1f : 1f; // flipped order
             return angle * sign;
         }
-        private float CrossProduct2D(Vec2 a, Vec2 b)
+        private static float CrossProduct2D(Vec2 a, Vec2 b)
         {
             return a.x * b.y - a.y * b.x;
         }
@@ -1011,7 +1011,7 @@ namespace Alliance.Common.Extensions.Artillery
         private Agent _lastShooterAgent;
         private Vec3 GetBallisticErrorAppliedDirection(float BallisticErrorAmount)
         {
-            Mat3 mat = default(Mat3);
+            Mat3 mat = default;
             mat.f = ShootingDirection;
             mat.u = Vec3.Up;
             Mat3 mat2 = mat;
@@ -1023,7 +1023,7 @@ namespace Alliance.Common.Extensions.Artillery
             return mat2.f;
         }
 
-        private bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
+        private static bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
         {
             if (entity.HasTag(tag))
                 return true;
@@ -1133,13 +1133,15 @@ namespace Alliance.Common.Extensions.Artillery
 
 
             }
+            if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
+            {
+                reportDamage = false;
+                damage = 0;
+            }
             if (this.DestroyedByStoneOnly)
             {
-                if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
-                {
-                    reportDamage = false;
-                    damage = 0;
-                }
+                reportDamage = false;
+                damage = 0;
             }
 
 

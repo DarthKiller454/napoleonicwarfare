@@ -12,12 +12,12 @@ namespace Alliance.Common.Extensions.CombatLogic
     {
         private readonly Dictionary<Agent, float> _riderlessTimers = new Dictionary<Agent, float>();
 
-        private const float DespawnTime = 180f; // 3 minutes
+        private const float DespawnTime = 300f; // 5 minutes 
+        private const float FleeTime = 180f; // 3 minutes
 
         public AutoHorseSlay()
         {
         }
-
         public override void OnMissionTick(float dt)
         {
             base.OnMissionTick(dt);
@@ -27,8 +27,8 @@ namespace Alliance.Common.Extensions.CombatLogic
 
             if (Mission.Current == null)
                 return;
-            //if (!Config.Instance.AutoHorseSlay)
-            //  return;
+            if (!Config.Instance.AutoHorseSlay)
+              return;
 
             AgentReadOnlyList agents = Mission.Current.Agents;
 
@@ -65,6 +65,11 @@ namespace Alliance.Common.Extensions.CombatLogic
                 _riderlessTimers[agent] += dt;
 
                 // Kill horse after 2 minutes abandoned
+                if (_riderlessTimers[agent] >= FleeTime)
+                {
+                    agent.DealDamage(agent, 1);
+                    agent.Retreat();
+                }
                 if (_riderlessTimers[agent] >= DespawnTime)
                 {
                     agent.DealDamage(agent, 2000);

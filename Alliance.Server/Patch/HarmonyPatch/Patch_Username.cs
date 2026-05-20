@@ -21,13 +21,37 @@ namespace Alliance.Server.Patch.HarmonyPatch
 
                 _patched = true;
 
-                MethodInfo target = typeof(GameNetwork).GetMethod("AddNewPlayerOnServer", BindingFlags.Static | BindingFlags.Public);
-                MethodInfo method = typeof(Patch_Username).GetMethod(nameof(Prefix_AddNewPlayerOnServer), BindingFlags.Static | BindingFlags.Public);
-                Harmony.Patch(target, new HarmonyMethod(method)); 
-                MethodInfo reconnectTarget = typeof(NetworkCommunicator).GetMethod("UpdateConnectionInfoForReconnect", BindingFlags.Instance | BindingFlags.Public);
-                MethodInfo reconnectPostfix = typeof(Patch_Username).GetMethod(nameof(Postfix_UpdateConnectionInfoForReconnect), BindingFlags.Static | BindingFlags.Public);
-                Harmony.Patch(reconnectTarget, new HarmonyMethod(reconnectPostfix));
+                MethodInfo target = typeof(GameNetwork).GetMethod(
+                    "AddNewPlayerOnServer",
+                    BindingFlags.Static | BindingFlags.Public);
 
+                MethodInfo prefix = typeof(Patch_Username).GetMethod(
+                    nameof(Prefix_AddNewPlayerOnServer),
+                    BindingFlags.Static | BindingFlags.Public);
+
+                Harmony.Patch(target, prefix: new HarmonyMethod(prefix));
+
+                MethodInfo reconnectTarget = typeof(NetworkCommunicator).GetMethod(
+                    "UpdateConnectionInfoForReconnect",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                Harmony.Patch(
+                    reconnectTarget,
+                    prefix: new HarmonyMethod(typeof(Patch_Username).GetMethod(
+                        nameof(Prefix_UpdateConnectionInfoForReconnect),
+                        BindingFlags.Static | BindingFlags.Public)),
+                    postfix: new HarmonyMethod(typeof(Patch_Username).GetMethod(
+                        nameof(Postfix_UpdateConnectionInfoForReconnect),
+                        BindingFlags.Static | BindingFlags.Public)));
+                MethodInfo addNetworkPeerTarget = typeof(GameNetwork).GetMethod(
+                    "AddNetworkPeer",
+                    BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+                MethodInfo addNetworkPeerPrefix = typeof(Patch_Username).GetMethod(
+                    nameof(Prefix_AddNetworkPeer),
+                    BindingFlags.Static | BindingFlags.Public);
+
+                Harmony.Patch(addNetworkPeerTarget, prefix: new HarmonyMethod(addNetworkPeerPrefix));
                 return true;
             }
             catch (Exception ex)
@@ -37,9 +61,25 @@ namespace Alliance.Server.Patch.HarmonyPatch
                 return false;
             }
         }
+        public static void Prefix_AddNetworkPeer(NetworkCommunicator networkPeer)
+        {
+            if (networkPeer == null || networkPeer.PlayerConnectionInfo == null)
+                return;
 
+            string desiredName = networkPeer.PlayerConnectionInfo.Name;
+
+            if (string.IsNullOrWhiteSpace(desiredName))
+                return;
+
+            ForceSetNetworkCommunicatorName(networkPeer, desiredName);
+
+            Log($"[NicknamePatch] AddNetworkPeer prefix forced name to '{desiredName}', current='{networkPeer.UserName}'", LogLevel.Information);
+        }
         public static bool Prefix_AddNewPlayerOnServer(ref PlayerConnectionInfo playerConnectionInfo, ref bool serverPeer, ref bool isAdmin)
         {
+
+            if (playerConnectionInfo == null)
+                return true;
 
             string playerId = playerConnectionInfo.PlayerID.ToString();
             string nickname = NicknameDatabase.GetNickname(playerId);
@@ -51,35 +91,155 @@ namespace Alliance.Server.Patch.HarmonyPatch
 
             return true;
         }
-        public static void Postfix_UpdateConnectionInfoForReconnect(NetworkCommunicator __instance)
+        public static void Prefix_UpdateConnectionInfoForReconnect(
+    NetworkCommunicator __instance,
+    ref PlayerConnectionInfo playerConnectionInfo,
+    bool isAdmin)
         {
-            if (__instance == null || __instance.PlayerConnectionInfo == null)
+            if (__instance == null || playerConnectionInfo == null)
                 return;
 
-            string playerId = __instance.PlayerConnectionInfo.PlayerID.ToString();
-            if (string.IsNullOrWhiteSpace(playerId))
+            // playerConnectionInfo.Name was already corrected by AddNewPlayerOnServer prefix.
+            string desiredName = playerConnectionInfo.Name;
+
+            if (string.IsNullOrWhiteSpace(desiredName))
                 return;
 
-            string nickname = NicknameDatabase.GetNickname(playerId);
-            if (string.IsNullOrWhiteSpace(nickname))
+            ForceSetNetworkCommunicatorName(__instance, desiredName);
+
+            Log($"[NicknamePatch] Reconnect prefix forced name to '{desiredName}', current communicator.UserName='{__instance.UserName}'", LogLevel.Information);
+        }
+
+        public static void Postfix_UpdateConnectionInfoForReconnect(
+            NetworkCommunicator __instance,
+            PlayerConnectionInfo playerConnectionInfo,
+            bool isAdmin)
+        {
+            if (__instance == null || playerConnectionInfo == null)
                 return;
 
-            Log($"[NicknamePatch] Reapplying nickname for reconnect: '{nickname}'", LogLevel.Information);
+            string desiredName = playerConnectionInfo.Name;
 
-            // --- Apply to ConnectionInfo (only cosmetic, but harmless)
-            __instance.PlayerConnectionInfo.Name = nickname;
+            if (string.IsNullOrWhiteSpace(desiredName))
+                return;
 
-            // --- Apply properly to the actual peer (this updates everything)
-            if (__instance.VirtualPlayer != null)
+            ForceSetNetworkCommunicatorName(__instance, desiredName);
+
+            Log($"[NicknamePatch] Reconnect postfix forced name to '{desiredName}', current communicator.UserName='{__instance.UserName}'", LogLevel.Information);
+        }
+
+        private static void ForceSetNetworkCommunicatorName(NetworkCommunicator communicator, string desiredName)
+        {
+            if (communicator == null || string.IsNullOrWhiteSpace(desiredName))
+                return;
+
+            try
             {
-                try
+                if (communicator.PlayerConnectionInfo != null)
+                    communicator.PlayerConnectionInfo.Name = desiredName;
+
+                if (communicator.VirtualPlayer != null)
+                    ForceSetObjectStringMember(communicator.VirtualPlayer, "UserName", desiredName);
+
+                // Optional fallback: in case NetworkCommunicator itself has a cached username field.
+                ForceSetLikelyStringFields(communicator, communicator.UserName, desiredName);
+
+                if (communicator.UserName != desiredName)
                 {
-                    _ = __instance.VirtualPlayer.UserName.Replace(__instance.VirtualPlayer.UserName.ToString(), nickname);
+                    Log(
+                        $"[NicknamePatch] WARNING: communicator.UserName still not changed. Desired='{desiredName}', Actual='{communicator.UserName}'",
+                        LogLevel.Warning);
                 }
-                catch (Exception e)
+            }
+            catch (Exception ex)
+            {
+                Log("[NicknamePatch] Failed to force communicator username", LogLevel.Error);
+                Log(ex.ToString(), LogLevel.Error);
+            }
+        }
+
+        private static void ForceSetObjectStringMember(object obj, string memberName, string value)
+        {
+            if (obj == null)
+                return;
+
+            Type type = obj.GetType();
+
+            while (type != null)
+            {
+                PropertyInfo property = type.GetProperty(
+                    memberName,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+
+                MethodInfo setter = property?.GetSetMethod(true);
+
+                if (setter != null)
                 {
-                    Log($"[NicknamePatch] Failed to send name sync message: {e}", LogLevel.Error);
+                    setter.Invoke(obj, new object[] { value });
+                    return;
                 }
+
+                FieldInfo backingField = type.GetField(
+                    $"<{memberName}>k__BackingField",
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
+
+                if (backingField != null)
+                {
+                    backingField.SetValue(obj, value);
+                    return;
+                }
+
+                FieldInfo directField = type.GetField(
+                    memberName,
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
+
+                if (directField != null && directField.FieldType == typeof(string))
+                {
+                    directField.SetValue(obj, value);
+                    return;
+                }
+
+                type = type.BaseType;
+            }
+        }
+
+        private static void ForceSetLikelyStringFields(object obj, string oldValue, string newValue)
+        {
+            if (obj == null)
+                return;
+
+            Type type = obj.GetType();
+
+            while (type != null)
+            {
+                FieldInfo[] fields = type.GetFields(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly);
+
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.FieldType != typeof(string))
+                        continue;
+
+                    string fieldName = field.Name.ToLowerInvariant();
+
+                    bool likelyNameField =
+                        fieldName.Contains("username") ||
+                        fieldName.Contains("user_name") ||
+                        fieldName.Contains("playername") ||
+                        fieldName.Contains("name");
+
+                    if (!likelyNameField)
+                        continue;
+
+                    object currentValue = field.GetValue(obj);
+
+                    if (currentValue == null || currentValue.Equals(oldValue))
+                    {
+                        field.SetValue(obj, newValue);
+                    }
+                }
+
+                type = type.BaseType;
             }
         }
     }

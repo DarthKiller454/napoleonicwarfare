@@ -29,7 +29,7 @@ namespace Alliance.Common.Extensions.Construction.Scripts
             if (_state == ConstructableState.Construct)
             {
                 _buildProgress = 0f;
-                HitPoint = 4;
+                HitPoint = 1;
             }
             else if (_state == ConstructableState.Built)
             {
@@ -119,19 +119,13 @@ namespace Alliance.Common.Extensions.Construction.Scripts
         private void FinishConstruction()
         {
             _state = ConstructableState.Built;
-
-            // Restore native destructible state.
             Reset();
             HitPoint = MaxHitPoint;
-
-            // Optional:
-            // You can trigger particles/sound here.
         }
 
         private void Dismantle()
         {
             _state = ConstructableState.Dismantled;
-
             SetVisibleSynched(false, true);
             GameEntity.SetPhysicsState(false, true);
         }

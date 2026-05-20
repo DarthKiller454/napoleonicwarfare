@@ -15,7 +15,7 @@ namespace Alliance.Common.Patch.HarmonyPatch
     /// </summary>
     class Patch_AddTeam
     {
-        private static readonly Harmony Harmony = new Harmony(SubModule.ModuleId + nameof(Patch_AddTeam));
+        private static readonly Harmony Harmony = new(SubModule.ModuleId + nameof(Patch_AddTeam));
 
         private static bool _patched;
         public static bool Patch()

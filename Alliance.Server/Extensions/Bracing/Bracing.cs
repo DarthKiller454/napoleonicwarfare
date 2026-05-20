@@ -6,7 +6,7 @@ using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.ObjectSystem;
 
-namespace Alliance.Server.Extensions.Vehicles.Handlers
+namespace Alliance.Server.Extensions.Bracing
 {
     public class BracingHandler : IHandlerRegister
     {
@@ -32,14 +32,12 @@ namespace Alliance.Server.Extensions.Vehicles.Handlers
             { "russian_musket_bayonet",          "russian_musket_bayonet_bracing" },
             { "russian_musket_bayonet_bracing",  "russian_musket_bayonet" }
         };
-
-
         public void Register(GameNetwork.NetworkMessageHandlerRegisterer reg)
         {
             //reg.Register<CS_Bracing>(HandleBracing);
         }
 
-        public bool HandleBracing(NetworkCommunicator peer, CS_Bracing message)
+        public static bool HandleBracing(NetworkCommunicator peer, CS_BracingRequest message)
         {
             Agent agent = Mission.MissionNetworkHelper.GetAgentFromIndex(message.RequestedAgentIndex);
 
@@ -53,7 +51,7 @@ namespace Alliance.Server.Extensions.Vehicles.Handlers
 
             return true;
         }
-        private void SwapWeapon(Agent agent)
+        private static void SwapWeapon(Agent agent)
         {
             if (agent == null || !agent.IsActive())
                 return;

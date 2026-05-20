@@ -20,7 +20,7 @@ namespace Alliance.Server.GameModes
 				new MultiplayerTimerComponent(),
 				new AgentHumanAILogic(),
                 new MissionAgentPanicHandler(),
-                new MissionLobbyEquipmentNetworkComponent(),
+				new MissionLobbyEquipmentNetworkComponent(),
 				new MissionHardBorderPlacer(),
 				new MissionBoundaryPlacer(),
 				new MissionBoundaryCrossingHandler(10f),

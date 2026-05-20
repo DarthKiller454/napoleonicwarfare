@@ -48,7 +48,8 @@ namespace Alliance.Common.Patch.HarmonyPatch
             "nwf_austria",
             "nwf_france",
             "nwf_britain",
-            "nwf_prussia"
+            "nwf_prussia",
+            "nwf_russia"
         };
 
         private static bool Prefix_SelectRandomCultures(MultiplayerOptions.MultiplayerOptionsAccessMode accessMode)

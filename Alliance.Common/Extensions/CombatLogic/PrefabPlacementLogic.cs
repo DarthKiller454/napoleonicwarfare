@@ -6,6 +6,7 @@ using System.Linq;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
+using Alliance.Common.Extensions.PE;
 
 namespace Alliance.Common.Extensions.CombatLogic
 {
@@ -22,7 +23,7 @@ namespace Alliance.Common.Extensions.CombatLogic
             base.OnMissionTick(dt);
 
         }
-        public void RemoveSpawnedCannons()
+        public static void RemoveSpawnedCannons()
         {
             if (Mission.Current?.Scene == null)
                 return;
@@ -185,7 +186,7 @@ namespace Alliance.Common.Extensions.CombatLogic
             }
             if (prefabitem != null && prefabitem.Equals("nwf_prefabplacer_12pdcannonbox"))
             {
-                MissionObject cannonprefab = Mission.Current?.CreateMissionObjectFromPrefab("nwf_cannon_12pd_moveable", frame, entity => {});
+                MissionObject cannonprefab = Mission.Current?.CreateMissionObjectFromPrefab("limber_cannon", frame, entity => {});
                 cannonprefab.GameEntity.AddTag("cannonbyscript");
                 SpawnedCannons.Add(cannonprefab);
             }

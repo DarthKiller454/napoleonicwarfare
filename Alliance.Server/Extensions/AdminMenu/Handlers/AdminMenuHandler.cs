@@ -11,9 +11,13 @@ using Alliance.Common.GameModes;
 using Alliance.Server.Core;
 using Alliance.Server.Core.Security;
 using Alliance.Server.Extensions.AdminMenu.Behaviors;
+using Alliance.Server.GameModes.CaptainX.Behaviors;
+using NetworkMessages.FromServer;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 using TaleWorlds.Library;
@@ -133,9 +137,13 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 					return Unban(peer, admin);
 				if (admin.ToggleMutePlayer)
 					return ToggleMutePlayer(peer, admin);
-				if (admin.Respawn)
+                if (admin.Reset)
+                    return Reset(peer);
+                if (admin.Respawn)
 					return Respawn(peer, admin);
-				if (admin.ToggleInvulnerable)
+                if (admin.Revive)
+                    return Revive(peer, admin);
+                if (admin.ToggleInvulnerable)
 					return ToggleInvulnerable(peer, admin);
 				if (admin.TeleportToPlayer)
 					return TeleportToPlayer(peer, admin);
@@ -268,9 +276,31 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 				return false;
 			}
 
-		}
+        }
 
-		public bool HealAll(NetworkCommunicator peer)
+        public bool Revive(NetworkCommunicator peer, AdminClient admin)
+        {
+            NetworkCommunicator playerSelected = GameNetwork.NetworkPeers.Where(x => x.VirtualPlayer.Id == admin.PlayerSelected).FirstOrDefault();
+            MissionPeer missionPeer = playerSelected.GetComponent<MissionPeer>();
+
+            if (missionPeer.Team == Mission.Current.AttackerTeam || missionPeer.Team == Mission.Current.DefenderTeam)
+            {
+                Mission.Current.GetMissionBehavior<RespawnBehavior>().RevivePlayer(playerSelected);
+                Log($"[AdminPanel][RESPAWN] Player {playerSelected?.UserName} respawn by admin {peer.UserName}", LogLevel.Information);
+                ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESPAWN] Player {playerSelected?.UserName} respawn by {peer.UserName}", AdminServerLog.ColorList.Success);
+                return true;
+
+            }
+            else
+            {
+                Log($"[AdminPanel][RESPAWN] Error while respawning, player {playerSelected?.UserName} doesn't belong to a team", LogLevel.Information);
+                ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESPAWN] Error while respawning, player {playerSelected?.UserName} doesn't belong to a team", AdminServerLog.ColorList.Danger);
+                return false;
+            }
+
+        }
+
+        public bool HealAll(NetworkCommunicator peer)
 		{
 			List<NetworkCommunicator> playersSelected = GameNetwork.NetworkPeers.ToList();
 
@@ -291,9 +321,295 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[GODMODE] Player {playerSelected.UserName} set to GODMODE by admin {peer.UserName}", AdminServerLog.ColorList.Success);
 
 			return true;
-		}
+        }
 
-		public bool GodModAll(NetworkCommunicator peer)
+        public bool Reset(NetworkCommunicator peer)
+        {
+
+            Mission mission = Mission.Current;
+            if (mission == null)
+                return false;
+
+            MultiplayerRoundController flagDominationController = mission.GetMissionBehavior<MultiplayerRoundController>();
+			if(flagDominationController != null)
+            {
+                flagDominationController.RoundEndReason = RoundEndReason.Invalid;
+                flagDominationController.RoundWinner = BattleSideEnum.None;
+            }
+            mission.ResetMission();
+
+			ResetScoreboardToZero(mission); 
+			ResetScoreboardHeaderValues(mission);
+            ResetRoundControllerBasic(mission);
+            ResetRoundTimerToMax(mission);
+			
+
+            Log($"[AdminPanel][RESET] Mission Reset by admin {peer.UserName}.", LogLevel.Information);
+            ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESET] by {peer.UserName}.", AdminServerLog.ColorList.Success);
+            return true;
+        }
+        private static readonly BindingFlags Flags =
+        BindingFlags.Instance |
+        BindingFlags.Public |
+        BindingFlags.NonPublic;
+
+        private static void ResetScoreboardToZero(Mission mission)
+    {
+        MissionScoreboardComponent scoreboard = mission.GetMissionBehavior<MissionScoreboardComponent>();
+        if (scoreboard == null)
+            return;
+
+        MethodInfo clearSideScores = typeof(MissionScoreboardComponent).GetMethod(
+            "ClearSideScores",
+            Flags);
+
+        if (clearSideScores != null)
+        {
+            clearSideScores.Invoke(scoreboard, null);
+        }
+        else
+        {
+            int attackerScore = scoreboard.GetRoundScore(BattleSideEnum.Attacker);
+            int defenderScore = scoreboard.GetRoundScore(BattleSideEnum.Defender);
+
+            if (attackerScore != 0 && mission.AttackerTeam != null)
+                scoreboard.ChangeTeamScore(mission.AttackerTeam, -attackerScore);
+
+            if (defenderScore != 0 && mission.DefenderTeam != null)
+                scoreboard.ChangeTeamScore(mission.DefenderTeam, -defenderScore);
+        }
+
+        FieldInfo roundWinnerListField = typeof(MissionScoreboardComponent).GetField(
+            "_roundWinnerList",
+            Flags);
+
+        if (roundWinnerListField?.GetValue(scoreboard) is IList roundWinnerList)
+            roundWinnerList.Clear();
+
+        // Optional: clear MVP history shown to late-joining clients.
+        FieldInfo mvpListField = typeof(MissionScoreboardComponent).GetField(
+            "_mvpCountPerPeer",
+            Flags);
+
+        if (mvpListField?.GetValue(scoreboard) is IList mvpList)
+            mvpList.Clear();
+    }
+
+    private static void ResetRoundTimerToMax(Mission mission)
+    {
+        MultiplayerTimerComponent timer = mission.GetMissionBehavior<MultiplayerTimerComponent>();
+        if (timer == null)
+            return;
+
+        int roundTimeLimit = MultiplayerOptions.OptionType.RoundTimeLimit.GetIntValue();
+
+        timer.StartTimerAsServer(roundTimeLimit);
+    }
+
+    private static void ResetRoundControllerBasic(Mission mission)
+    {
+        MultiplayerRoundController roundController = mission.GetMissionBehavior<MultiplayerRoundController>();
+        if (roundController == null)
+            return;
+
+        roundController.RoundCount = 0;
+        roundController.RoundWinner = BattleSideEnum.None;
+        roundController.RoundEndReason = RoundEndReason.Invalid;
+
+        SetPrivateField(roundController, "_roundTimeOver", false);
+
+        SetPrivateAutoProperty(roundController, "IsMatchEnding", false);
+
+        MethodInfo changeRoundState = typeof(MultiplayerRoundController).GetMethod(
+            "ChangeRoundState",
+            Flags);
+
+        if (changeRoundState != null &&
+            roundController.CurrentRoundState != MultiplayerRoundState.InProgress)
+        {
+            changeRoundState.Invoke(roundController, new object[]
+            {
+                MultiplayerRoundState.InProgress
+            });
+        }
+    }
+        private static void ResetScoreboardHeaderValues(Mission mission)
+        {
+            MissionScoreboardComponent scoreboard = mission.GetMissionBehavior<MissionScoreboardComponent>();
+            if (scoreboard == null)
+                return;
+
+            HashSet<string> headerIds = GetScoreboardHeaderIds(scoreboard);
+
+            bool resetKills = headerIds.Contains("kill");
+            bool resetDeaths = headerIds.Contains("death");
+            bool resetAssists = headerIds.Contains("assist");
+            bool resetScore = headerIds.Contains("score");
+
+            if (!resetKills && !resetDeaths && !resetAssists && !resetScore)
+                return;
+
+            // Reset player rows.
+            foreach (NetworkCommunicator networkPeer in GameNetwork.NetworkPeers)
+            {
+                MissionPeer missionPeer = networkPeer.GetComponent<MissionPeer>();
+                if (missionPeer == null)
+                    continue;
+
+                if (resetKills)
+                    SetIntMember(missionPeer, "KillCount", 0);
+
+                if (resetDeaths)
+                    SetIntMember(missionPeer, "DeathCount", 0);
+
+                if (resetAssists)
+                    SetIntMember(missionPeer, "AssistCount", 0);
+
+                if (resetScore)
+                    SetIntMember(missionPeer, "Score", 0);
+
+                // This is the same message type native uses when score changes.
+                GameNetwork.BeginBroadcastModuleEvent();
+                GameNetwork.WriteMessage(new KillDeathCountChange(
+                    missionPeer.GetNetworkPeer(),
+                    null,
+                    missionPeer.KillCount,
+                    missionPeer.AssistCount,
+                    missionPeer.DeathCount,
+                    missionPeer.Score));
+                GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+
+                scoreboard.PlayerPropertiesChanged(missionPeer);
+            }
+
+            // Reset bot rows.
+            ResetBotScoreboardValues(scoreboard, resetKills, resetDeaths, resetAssists, resetScore);
+        }
+
+        private static void ResetBotScoreboardValues(
+    MissionScoreboardComponent scoreboard,
+    bool resetKills,
+    bool resetDeaths,
+    bool resetAssists,
+    bool resetScore)
+        {
+            if (scoreboard.Sides == null)
+                return;
+
+            foreach (MissionScoreboardComponent.MissionScoreboardSide side in scoreboard.Sides)
+            {
+                if (side?.BotScores == null)
+                    continue;
+
+                if (resetKills)
+                    SetIntMember(side.BotScores, "KillCount", 0);
+
+                if (resetDeaths)
+                    SetIntMember(side.BotScores, "DeathCount", 0);
+
+                if (resetAssists)
+                    SetIntMember(side.BotScores, "AssistCount", 0);
+
+                if (resetScore)
+                    SetIntMember(side.BotScores, "Score", 0);
+
+                // Preserve AliveCount behavior unless you want to wipe that too.
+                // ResetMission() / OnClearScene() already sets BotScores.AliveCount = 0.
+                scoreboard.BotPropertiesChanged(side.Side);
+
+                if (GameNetwork.IsServer)
+                {
+                    GameNetwork.BeginBroadcastModuleEvent();
+                    GameNetwork.WriteMessage(new NetworkMessages.FromServer.BotData(
+                        side.Side,
+                        side.BotScores.KillCount,
+                        side.BotScores.AssistCount,
+                        side.BotScores.DeathCount,
+                        side.BotScores.AliveCount));
+                    GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+                }
+            }
+        }
+
+        private static HashSet<string> GetScoreboardHeaderIds(MissionScoreboardComponent scoreboard)
+        {
+            HashSet<string> ids = new HashSet<string>();
+
+            try
+            {
+                MissionScoreboardComponent.ScoreboardHeader[] headers = scoreboard.Headers;
+                if (headers != null)
+                {
+                    foreach (MissionScoreboardComponent.ScoreboardHeader header in headers)
+                    {
+                        if (!string.IsNullOrEmpty(header.Id))
+                            ids.Add(header.Id);
+                    }
+                }
+            }
+            catch
+            {
+                // Fallback: assume BattleX-style scoreboard if header reading fails.
+                ids.Add("kill");
+                ids.Add("death");
+                ids.Add("assist");
+                ids.Add("score");
+            }
+
+            return ids;
+        }
+
+        private static bool SetIntMember(object target, string memberName, int value)
+        {
+            if (target == null)
+                return false;
+
+            Type type = target.GetType();
+
+            while (type != null)
+            {
+                PropertyInfo property = type.GetProperty(memberName, Flags);
+                if (property != null && property.PropertyType == typeof(int))
+                {
+                    MethodInfo setter = property.GetSetMethod(true);
+                    if (setter != null)
+                    {
+                        setter.Invoke(target, new object[] { value });
+                        return true;
+                    }
+                }
+
+                FieldInfo field =
+                    type.GetField(memberName, Flags) ??
+                    type.GetField($"<{memberName}>k__BackingField", Flags);
+
+                if (field != null && field.FieldType == typeof(int))
+                {
+                    field.SetValue(target, value);
+                    return true;
+                }
+
+                type = type.BaseType;
+            }
+
+            return false;
+        }
+
+        private static void SetPrivateField(object instance, string fieldName, object value)
+    {
+        FieldInfo field = instance.GetType().GetField(fieldName, Flags);
+        field?.SetValue(instance, value);
+    }
+
+    private static void SetPrivateAutoProperty(object instance, string propertyName, object value)
+    {
+        FieldInfo field = instance.GetType().GetField(
+            $"<{propertyName}>k__BackingField",
+            Flags);
+
+        field?.SetValue(instance, value);
+    }
+        public bool GodModAll(NetworkCommunicator peer)
 		{
 			List<NetworkCommunicator> playersSelected = GameNetwork.NetworkPeers.ToList();
 

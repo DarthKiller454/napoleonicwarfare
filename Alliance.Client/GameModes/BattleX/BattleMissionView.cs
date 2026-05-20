@@ -1,6 +1,8 @@
 ﻿using Alliance.Client.Extensions.AgentsCount.Views;
 using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.Artillery;
 using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using System.Collections.Generic;
 using TaleWorlds.Library;
@@ -23,9 +25,10 @@ namespace Alliance.Client.GameModes.BattleX
 			{
 				// Custom views
 				new FormationStatusView(),
-				new HUDExtensionUIHandlerView(),
                 new AgentsCountView(),
                 new AgentStatusView(),
+                new AL_MainAgentEquipmentController(),
+				new CannonCrosshairMissionView(),
 
 				// Native battle views
 				MultiplayerViewCreator.CreateMultiplayerMissionOrderUIHandler(mission),

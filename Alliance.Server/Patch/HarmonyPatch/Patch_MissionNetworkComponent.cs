@@ -19,33 +19,73 @@ namespace Alliance.Server.Patch.HarmonyPatch
 		private static readonly Harmony Harmony = new Harmony(nameof(Patch_MissionNetworkComponent));
 
 		private static bool _patched;
-		public static bool Patch()
-		{
-			try
-			{
-				if (_patched)
-					return false;
-				_patched = true;
-				Harmony.Patch(
-					typeof(MissionNetworkComponent).GetMethod("HandleClientEventApplyOrderWithFormationAndNumber",
-						BindingFlags.Instance | BindingFlags.NonPublic),
-					prefix: new HarmonyMethod(typeof(Patch_MissionNetworkComponent).GetMethod(
-						nameof(Prefix_HandleClientEventApplyOrderWithFormationAndNumber), BindingFlags.Static | BindingFlags.Public)));
-				Harmony.Patch(
-					typeof(MissionNetworkComponent).GetMethod("SendAgentsToPeer", BindingFlags.NonPublic | BindingFlags.Instance),
-					prefix: new HarmonyMethod(typeof(Patch_MissionNetworkComponent).GetMethod(
-						nameof(Prefix_SendAgentsToPeer), BindingFlags.Static | BindingFlags.Public)));
-			}
-			catch (Exception e)
-			{
-				Log($"Alliance - ERROR in {nameof(Patch_MissionNetworkComponent)}", LogLevel.Error);
-				Log(e.ToString(), LogLevel.Error);
-				return false;
-			}
+        public static bool Patch()
+        {
+            try
+            {
+                if (_patched)
+                    return false;
 
-			return true;
-		}
-		public static bool Prefix_SendAgentsToPeer(MissionNetworkComponent __instance, NetworkCommunicator networkPeer)
+                _patched = true;
+
+                MethodInfo applyOrderMethod = typeof(MissionNetworkComponent).GetMethod(
+                    "HandleClientEventApplyOrderWithFormationAndNumber",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+
+                MethodInfo sendAgentsToPeerMethod = typeof(MissionNetworkComponent).GetMethod(
+                    "SendAgentsToPeer",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+
+                MethodInfo requestUseObjectMethod = typeof(MissionNetworkComponent).GetMethod(
+                    "HandleClientEventRequestUseObject",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+
+                if (applyOrderMethod == null)
+                {
+                    Log($"Alliance - ERROR in {nameof(Patch_MissionNetworkComponent)}: Could not find HandleClientEventApplyOrderWithFormationAndNumber", LogLevel.Error);
+                    return false;
+                }
+
+                if (sendAgentsToPeerMethod == null)
+                {
+                    Log($"Alliance - ERROR in {nameof(Patch_MissionNetworkComponent)}: Could not find SendAgentsToPeer", LogLevel.Error);
+                    return false;
+                }
+
+                if (requestUseObjectMethod == null)
+                {
+                    Log($"Alliance - ERROR in {nameof(Patch_MissionNetworkComponent)}: Could not find HandleClientEventRequestUseObject", LogLevel.Error);
+                    return false;
+                }
+
+                Harmony.Patch(
+                    applyOrderMethod,
+                    prefix: new HarmonyMethod(typeof(Patch_MissionNetworkComponent).GetMethod(
+                        nameof(Prefix_HandleClientEventApplyOrderWithFormationAndNumber),
+                        BindingFlags.Static | BindingFlags.Public)));
+
+                Harmony.Patch(
+                    sendAgentsToPeerMethod,
+                    prefix: new HarmonyMethod(typeof(Patch_MissionNetworkComponent).GetMethod(
+                        nameof(Prefix_SendAgentsToPeer),
+                        BindingFlags.Static | BindingFlags.Public)));
+
+                Harmony.Patch(
+                    requestUseObjectMethod,
+                    prefix: new HarmonyMethod(typeof(Patch_MissionNetworkComponent).GetMethod(
+                        nameof(Prefix_HandleClientEventRequestUseObjectPatch),
+                        BindingFlags.Static | BindingFlags.Public)));
+            }
+            catch (Exception e)
+            {
+                Log($"Alliance - ERROR in {nameof(Patch_MissionNetworkComponent)}", LogLevel.Error);
+                Log(e.ToString(), LogLevel.Error);
+                return false;
+            }
+
+            return true;
+        }
+        public static bool Prefix_SendAgentsToPeer(MissionNetworkComponent __instance, NetworkCommunicator networkPeer)
 		{
 			try
 			{
@@ -260,5 +300,53 @@ namespace Alliance.Server.Patch.HarmonyPatch
 			// Return false to skip original method
 			return false;
 		}
-	}
+        public static bool Prefix_HandleClientEventRequestUseObjectPatch(
+            NetworkCommunicator networkPeer,
+            GameNetworkMessage baseMessage,
+            ref bool __result)
+        {
+            try
+            {
+                RequestUseObject requestUseObject = (RequestUseObject)baseMessage;
+
+                MissionPeer component = networkPeer.GetComponent<MissionPeer>();
+                if (component == null || component.ControlledAgent == null || !component.ControlledAgent.IsActive())
+                {
+                    __result = true;
+                    return false;
+                }
+
+                UsableMissionObject usableMissionObject =
+                    Mission.MissionNetworkHelper.GetMissionObjectFromMissionObjectId(
+                        requestUseObject.UsableMissionObjectId) as UsableMissionObject;
+
+                if (usableMissionObject == null)
+                {
+                    __result = true;
+                    return false;
+                }
+
+                Agent controlledAgent = component.ControlledAgent;
+
+                if (controlledAgent.CurrentlyUsedGameObject != usableMissionObject
+                    && controlledAgent.ObjectHasVacantPosition(usableMissionObject))
+                {
+                    controlledAgent.UseGameObject(
+                        usableMissionObject,
+                        requestUseObject.UsedObjectPreferenceIndex);
+                }
+
+                __result = true;
+                return false;
+            }
+            catch (Exception e)
+            {
+                Log($"Alliance - ERROR in {nameof(Prefix_HandleClientEventRequestUseObjectPatch)}", LogLevel.Error);
+                Log(e.ToString(), LogLevel.Error);
+
+                __result = true;
+                return false;
+            }
+        }
+    }
 }

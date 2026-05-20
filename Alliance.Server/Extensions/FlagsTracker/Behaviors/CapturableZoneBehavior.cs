@@ -10,7 +10,6 @@ namespace Alliance.Server.Extensions.FlagsTracker.Behaviors
 	{
 		public List<CS_CapturableZone> CapturableZones { get; private set; }
 
-		private float _delay;
 
 		public CapturableZoneBehavior()
 		{

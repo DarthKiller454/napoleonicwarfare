@@ -4,16 +4,16 @@ using TaleWorlds.MountAndBlade.Network.Messages;
 namespace Alliance.Common.Extensions.Bracing.NetworkMessages.FromServer
 {
     [DefineGameNetworkMessageTypeForMod(GameNetworkMessageSendType.FromServer)]
-    public sealed class CS_Bracing : GameNetworkMessage
+    public sealed class CS_BracingSend : GameNetworkMessage
     {
         public int RequestedAgentIndex { get; private set; }
 
-        public CS_Bracing(int requestedAgentIndex)
+        public CS_BracingSend(int requestedAgentIndex)
         {
             this.RequestedAgentIndex = requestedAgentIndex;
         }
 
-        public CS_Bracing()
+        public CS_BracingSend()
         {
         }
 
@@ -31,7 +31,7 @@ namespace Alliance.Common.Extensions.Bracing.NetworkMessages.FromServer
 
         protected override MultiplayerMessageFilter OnGetLogFilter()
         {
-            return MultiplayerMessageFilter.AgentsDetailed;
+            return MultiplayerMessageFilter.Agents;
         }
 
         protected override string OnGetLogFormat()

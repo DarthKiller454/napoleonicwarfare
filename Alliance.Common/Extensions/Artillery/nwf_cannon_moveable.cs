@@ -1,4 +1,5 @@
-﻿using Alliance.Common.Extensions.PE;
+﻿using Alliance.Common.Core.KeyBinder.Models;
+using Alliance.Common.Extensions.PE;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using MathF = TaleWorlds.Library.MathF;
 using static Alliance.Common.Utilities.Logger;
 
 namespace Alliance.Common.Extensions.Artillery
@@ -21,6 +23,9 @@ namespace Alliance.Common.Extensions.Artillery
     }
     public class NWF_Cannon_Moveable : RangedSiegeWeapon, ISpawnable, IMoveable
     {
+        private static readonly List<NWF_Cannon_Moveable> _activeCannons = new List<NWF_Cannon_Moveable>();
+
+        public static IReadOnlyList<NWF_Cannon_Moveable> ActiveCannons => _activeCannons;
         private MatrixFrame starterPosition;
         protected override float MaximumBallisticError
         {
@@ -46,6 +51,7 @@ namespace Alliance.Common.Extensions.Artillery
         }
         protected override void OnRemoved(int removeReason)
         {
+            _activeCannons.Remove(this);
             base.OnRemoved(removeReason);
         }
         protected override void OnMissionReset()
@@ -181,6 +187,11 @@ namespace Alliance.Common.Extensions.Artillery
 
             _verticalAdjusterStartingLocalFrame = _verticalAdjuster.GetFrame();
             _verticalAdjusterStartingLocalFrame = _body.GameEntity.GetBoneEntitialFrameWithIndex(0).TransformToLocal(in _verticalAdjusterStartingLocalFrame);
+
+            if (!_activeCannons.Contains(this))
+            {
+                _activeCannons.Add(this);
+            }
             base.OnInit();
             this.InitiateMoveSynch();
             starterPosition = GameEntity.GetFrame();
@@ -236,7 +247,44 @@ namespace Alliance.Common.Extensions.Artillery
                 }
             }
         }
+        public bool IsAimedByMainAgent()
+        {
+            Agent main = Agent.Main;
 
+            if (main == null || !main.IsActive())
+                return false;
+
+            if (base.PilotAgent == main)
+                return true;
+
+            return false;
+        }
+
+        public bool TryGetClientAimData(out Vec3 origin, out Vec3 direction, out float speed)
+        {
+            origin = Vec3.Zero;
+            direction = Vec3.Zero;
+            speed = 0f;
+
+            if (GameEntity == null || !GameEntity.IsValid || !GameEntity.IsVisibleIncludeParents())
+                return false;
+
+            if (!IsAimedByMainAgent())
+                return false;
+
+            origin = ProjectileEntityCurrentGlobalPosition;
+            direction = ShootingDirection;
+
+            if (direction.LengthSquared < 0.001f)
+                return false;
+
+            direction.Normalize();
+
+            // This uses your overridden ShootingSpeed, which returns ProjectileSpeed.
+            speed = ShootingSpeed;
+
+            return speed > 0f;
+        }
         protected override void OnEditorInit()
         {
         }
@@ -302,38 +350,42 @@ namespace Alliance.Common.Extensions.Artillery
             {
                 if (Agent.Main != null && this.GetPilotAgent() == Agent.Main && this.GetRotationAgent() == null)
                 {
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.W))
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.MoveForward))
                     {
                         this.RequestMovingForward();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.W))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.MoveForward))
                     {
                         this.RequestStopMovingForward();
                     }
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.S))
+
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.MoveBackward))
                     {
                         this.RequestMovingBackward();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.S))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.MoveBackward))
                     {
                         this.RequestStopMovingBackward();
                     }
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.A))
+
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.TurnLeft))
                     {
                         this.RequestTurningLeft();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.A))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.TurnLeft))
                     {
                         this.RequestStopTurningLeft();
                     }
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.D))
+
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.TurnRight))
                     {
                         this.RequestTurningRight();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.D))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.TurnRight))
                     {
                         this.RequestStopTurningRight();
                     }
+
                     if (Mission.Current.InputManager.IsKeyPressed(InputKey.Space))
                     {
                         this.RequestMovingUp();
@@ -342,6 +394,7 @@ namespace Alliance.Common.Extensions.Artillery
                     {
                         this.RequestStopMovingUp();
                     }
+
                     if (Mission.Current.InputManager.IsKeyPressed(InputKey.LeftShift))
                     {
                         this.RequestMovingDown();
@@ -350,6 +403,7 @@ namespace Alliance.Common.Extensions.Artillery
                     {
                         this.RequestStopMovingDown();
                     }
+
                     if (Mission.Current.InputManager.IsKeyPressed(InputKey.F))
                     {
                         GameNetwork.MyPeer.ControlledAgent.HandleStopUsingAction();
@@ -359,23 +413,24 @@ namespace Alliance.Common.Extensions.Artillery
                 }
                 if (Agent.Main != null && this.GetRotationAgent() == Agent.Main)
                 {
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.A))
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.TurnLeft))
                     {
                         this.RequestTurningLeft();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.A))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.TurnLeft))
                     {
                         this.RequestStopTurningLeft();
                     }
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.D))
+
+                    if (MoveableControlInput.IsPressed(MoveableControlAction.TurnRight))
                     {
                         this.RequestTurningRight();
                     }
-                    else if (Mission.Current.InputManager.IsKeyReleased(InputKey.D))
+                    else if (MoveableControlInput.IsReleased(MoveableControlAction.TurnRight))
                     {
                         this.RequestStopTurningRight();
                     }
-                    if (Mission.Current.InputManager.IsKeyPressed(InputKey.F))
+                    if (Mission.Current.InputManager.IsGameKeyPressed(13))
                     {
                         GameNetwork.MyPeer.ControlledAgent.HandleStopUsingAction();
                         ActionIndexCache ac = ActionIndexCache.act_none;
@@ -417,7 +472,6 @@ namespace Alliance.Common.Extensions.Artillery
                 }
             }
         }
-
         protected override void OnTick(float dt)
         {
             if(!base.GameEntity.IsValid)
@@ -431,7 +485,7 @@ namespace Alliance.Common.Extensions.Artillery
             }
             this.MoveControl();
 
-            if (GameNetwork.IsServer)
+            if (GameNetwork.IsServer && !this.HasExternalFrameControl())
             {
                 MatrixFrame frame = this.MoveObjectTick(dt);
                 base.SetFrameSynched(ref frame);
@@ -767,6 +821,10 @@ namespace Alliance.Common.Extensions.Artillery
         {
             get
             {
+                if (PilotAgent != null && PilotAgent.WalkMode)
+                {
+                    return 0.02f;
+                }
                 return 0.05f + (from rotateStandingPoint in this._rotateStandingPoints
                                 where rotateStandingPoint.HasUser && !rotateStandingPoint.UserAgent.IsInBeingStruckAction
                                 select rotateStandingPoint).Sum((StandingPoint rotateStandingPoint) => 0.1f);
@@ -777,6 +835,10 @@ namespace Alliance.Common.Extensions.Artillery
         {
             get
             {
+                if(PilotAgent != null && PilotAgent.WalkMode)
+                {
+                    return 0.02f;
+                }
                 return 0.1f;
             }
         }
@@ -956,6 +1018,10 @@ namespace Alliance.Common.Extensions.Artillery
 
         public float GetRotationSpeed()
         {
+            if (PilotAgent != null && PilotAgent.WalkMode)
+            {
+                return 0.05f;
+            }
             float num = 0.1f;
             foreach (CannonStandingPoint standingPoint in this._rotateStandingPoints)
             {
@@ -1044,7 +1110,7 @@ namespace Alliance.Common.Extensions.Artillery
             return mat2.f;
         }
 
-        private bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
+        private static bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
         {
             if (entity.HasTag(tag))
                 return true;
@@ -1151,16 +1217,18 @@ namespace Alliance.Common.Extensions.Artillery
                         SendMessageToPeer(message, peer);
                     }
                 }
-                
-                
+
+
+            }
+            if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
+            {
+                reportDamage = false;
+                damage = 0;
             }
             if (this.DestroyedByStoneOnly)
             {
-                if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
-                {
-                    reportDamage = false;
-                    damage = 0;
-                }
+                reportDamage = false;
+                damage = 0;
             }
 
 

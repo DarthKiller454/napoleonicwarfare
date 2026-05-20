@@ -139,7 +139,7 @@ namespace Alliance.Server
 			game.RemoveGameHandler<PlayerConnectionWatcher>();
 		}
 
-		private void AddGameModes()
+		private static void AddGameModes()
 		{
 			Module.CurrentModule.AddMultiplayerGameMode(new LobbyGameMode("Lobby"));
 			Module.CurrentModule.AddMultiplayerGameMode(new BRGameMode("BattleRoyale"));
@@ -155,7 +155,7 @@ namespace Alliance.Server
             Module.CurrentModule.AddMultiplayerGameMode(new GroupfightGameMode("Groupfight"));
         }
 
-		private void AddCommonBehaviors(Mission mission)
+		private static void AddCommonBehaviors(Mission mission)
         {
             mission.AddMissionBehavior(new CoreBehavior());
             mission.AddMissionBehavior(new ServerAutoHandler());
@@ -178,6 +178,8 @@ namespace Alliance.Server
             mission.AddMissionBehavior(new ToggleEntitiesBehavior());
             mission.AddMissionBehavior(new NotAllPlayersJoinFixBehavior());
             mission.AddMissionBehavior(new AutoHorseSlay());
+            mission.AddMissionBehavior(new SceneSyncBehavior());
+			mission.AddMissionBehavior(new AutoLimberCannonSpawnerBehavior());
         }
 	}
 }

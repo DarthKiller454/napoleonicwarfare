@@ -3,11 +3,10 @@ using System.Reflection;
 using HarmonyLib;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.Library;
-using Alliance.Common;
 using TaleWorlds.Core;
 using TaleWorlds.Engine;
 
-namespace Alliance.Client.Patch.HarmonyPatch
+namespace Alliance.Common.Patch.HarmonyPatch
 {
     public class Patch_DestructableComponent_OnHit
     {
@@ -76,8 +75,7 @@ namespace Alliance.Client.Patch.HarmonyPatch
             return true;
 
             ActionIndexCache currentAction = attackerAgent.GetCurrentAction(1);
-            if (currentAction == null
-            || currentAction == ActionIndexCache.act_none
+            if (currentAction == ActionIndexCache.act_none
             || currentAction.Index < 0
             || string.IsNullOrEmpty(currentAction.GetName())
             || currentAction.GetName == ActionIndexCache.act_none.GetName)

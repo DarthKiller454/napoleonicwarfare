@@ -1,66 +1,85 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using TaleWorlds.MountAndBlade;
 
 namespace Alliance.Client.Extensions.CustomName
 {
     public static class ClientNicknameManager
     {
-        private static readonly HttpClient Http = new HttpClient();
-        private static bool _loadedOnce = false;
+        private static readonly object _lock = new object();
 
-        public static string CachedNickname { get; set; }
+        private static Task<string> _currentLoadTask;
+        private static string _loadedPlayerId;
 
-        /// <summary>
-        /// Called from SubModule.OnBeforeInitialModuleScreenSetAsRoot()
-        /// or from a Harmony patch on NetworkMain/GameClient initialization.
-        /// </summary>
-        public static async Task InitializeAsync()
+        public static string CachedNickname { get; private set; }
+        public static bool HasLoadedServerNickname { get; private set; }
+
+        public static void SetCachedNickname(string nickname, bool markServerLoaded)
         {
-            if (_loadedOnce)
+            if (string.IsNullOrWhiteSpace(nickname))
                 return;
 
-            _loadedOnce = true;
+            CachedNickname = nickname;
 
+            if (markServerLoaded)
+                HasLoadedServerNickname = true;
+        }
+
+        public static Task<string> GetOrLoadNicknameAsync(string playerId, bool forceReload = false)
+        {
+            if (string.IsNullOrWhiteSpace(playerId))
+                return Task.FromResult<string>(null);
+
+            lock (_lock)
+            {
+                if (!forceReload &&
+                    HasLoadedServerNickname &&
+                    _loadedPlayerId == playerId &&
+                    !string.IsNullOrWhiteSpace(CachedNickname))
+                {
+                    return Task.FromResult(CachedNickname);
+                }
+
+                if (!forceReload &&
+                    _currentLoadTask != null &&
+                    _loadedPlayerId == playerId)
+                {
+                    return _currentLoadTask;
+                }
+
+                _loadedPlayerId = playerId;
+                _currentLoadTask = LoadNicknameInternalAsync(playerId);
+                return _currentLoadTask;
+            }
+        }
+
+        private static async Task<string> LoadNicknameInternalAsync(string playerId)
+        {
             try
             {
-                string playerId = GetPlayerId();
-                if (playerId == null)
-                    return;
+                string nickname = await NicknameSender.GetNicknameFromServer(playerId);
 
-                var url = $"http://109.230.239.42/username_api/get_username.php?playerId={playerId}";
-
-                string response = await Http.GetStringAsync(url);
-                CachedNickname = ParseNickname(response);
-
-                if (!string.IsNullOrWhiteSpace(CachedNickname))
+                if (!string.IsNullOrWhiteSpace(nickname))
                 {
-                    // Apply to UI if Lobby is already open
-                    ApplyToLobbyVM();
+                    SetCachedNickname(nickname, markServerLoaded: true);
+                    return nickname;
                 }
+
+                return null;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Nickname] Failed to load nickname: {ex}");
+                Console.WriteLine("[Nickname] Failed to load nickname: " + ex);
+                return null;
             }
-        }
-
-        private static string GetPlayerId()
-        {
-            var id = NetworkMain.GameClient?.PlayerID;
-            return id?.ToString();
-        }
-
-        private static string ParseNickname(string json)
-        {
-            try
+            finally
             {
-                var result = JsonConvert.DeserializeObject<NicknameResponse>(json);
-                return result?.nickname;
+                lock (_lock)
+                {
+                    // If loading failed or no nickname existed, allow a later retry.
+                    if (!HasLoadedServerNickname)
+                        _currentLoadTask = null;
+                }
             }
-            catch { return null; }
         }
 
         public static void ApplyToLobbyVM()
@@ -69,14 +88,7 @@ namespace Alliance.Client.Extensions.CustomName
                 return;
 
             if (NWFLobbyHomeVM.Instance != null)
-            {
-                NWFLobbyHomeVM.Instance.SetUserName(CachedNickname);
-            }
-        }
-
-        private class NicknameResponse
-        {
-            public string nickname { get; set; }
+                NWFLobbyHomeVM.Instance.ApplyNicknameLocally(CachedNickname);
         }
     }
 }

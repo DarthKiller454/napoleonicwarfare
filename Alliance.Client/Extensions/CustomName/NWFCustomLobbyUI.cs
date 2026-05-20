@@ -11,6 +11,8 @@ namespace Alliance.Client.Extensions.CustomName
     {
         public static NWFLobbyHomeVM Instance { get; private set; }
 
+        private bool _isLoadingNickname;
+
         public NWFLobbyHomeVM(
             NewsManager newsManager,
             Action<MPLobbyVM.LobbyPage> onChangePageRequest)
@@ -18,27 +20,107 @@ namespace Alliance.Client.Extensions.CustomName
         {
             Instance = this;
 
-            // Automatically apply loaded nickname
             if (!string.IsNullOrWhiteSpace(ClientNicknameManager.CachedNickname))
             {
-                Player.Name = ClientNicknameManager.CachedNickname;
-            }
-            else
-            {
-                // Fallback: store the current name
-                ClientNicknameManager.CachedNickname = Player.Name;
+                ApplyNicknameLocally(ClientNicknameManager.CachedNickname);
             }
 
+            _ = LoadServerNicknameAndApplyAsync();
+
             RefreshValues();
+        }
+        public void ReapplyCachedNickname()
+        {
+            if (string.IsNullOrWhiteSpace(ClientNicknameManager.CachedNickname))
+                return;
+
+            ApplyNicknameLocally(ClientNicknameManager.CachedNickname);
+        }
+
+        private async Task LoadServerNicknameAndApplyAsync()
+        {
+            if (_isLoadingNickname)
+                return;
+
+            _isLoadingNickname = true;
+
+            try
+            {
+                string playerId = null;
+
+                // The lobby PlayerData may not be ready immediately.
+                for (int i = 0; i < 20; i++)
+                {
+                    playerId = GetLobbyPlayerId();
+
+                    if (!string.IsNullOrWhiteSpace(playerId))
+                        break;
+
+                    await Task.Delay(250);
+                }
+
+                if (string.IsNullOrWhiteSpace(playerId))
+                {
+                    Console.WriteLine("[Nickname] Could not load nickname because lobby playerId was unavailable.");
+                    return;
+                }
+
+                string nickname = await ClientNicknameManager.GetOrLoadNicknameAsync(playerId);
+
+                if (string.IsNullOrWhiteSpace(nickname))
+                    return;
+
+                // Do not apply to an old VM instance.
+                if (Instance != this)
+                    return;
+
+                ApplyNicknameLocally(nickname);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Nickname] Failed while applying server nickname: " + ex);
+            }
+            finally
+            {
+                _isLoadingNickname = false;
+            }
+        }
+
+        private string GetLobbyPlayerId()
+        {
+            try
+            {
+                return Player?.PlayerData?.PlayerId.ToString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void ApplyNicknameLocally(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+            if (Player == null)
+                return;
+
+            Player.Name = name;
+            ClientNicknameManager.SetCachedNickname(name, markServerLoaded: false);
         }
 
         public void SetUserName(string name)
         {
-            Player.Name = name;
-            ClientNicknameManager.CachedNickname = name;
+            ApplyNicknameLocally(name);
+
+            string playerId = Player?.PlayerData?.PlayerId.ToString();
+
+            if (string.IsNullOrWhiteSpace(playerId))
+                return;
 
             Task.Run(() =>
-                NicknameSender.SendNicknameToServer(Player.PlayerData.PlayerId.ToString(), name));
+                NicknameSender.SendNicknameToServer(playerId, name));
         }
 
         private void EditUserName()

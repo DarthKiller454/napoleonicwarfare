@@ -28,7 +28,6 @@ namespace Alliance.Common.Extensions.PE
         public List<WeakGameEntity> SpawnedPrefabs { get; private set; }
 
         public Dictionary<WeakGameEntity, IStray> StrayEntity { get; private set; }
-
         protected override void OnTick(float dt)
         {
             base.OnTick(dt);

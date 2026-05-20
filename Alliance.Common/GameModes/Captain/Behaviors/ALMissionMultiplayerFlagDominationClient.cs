@@ -8,7 +8,6 @@ namespace Alliance.Common.GameModes.Captain.Behaviors
     public class ALMissionMultiplayerFlagDominationClient : MissionMultiplayerGameModeFlagDominationClient, IBotControllerBehavior
     {
         private bool _informedAboutFlagRemoval;
-
         protected override int GetWarningTimer()
         {
             int num = 0;

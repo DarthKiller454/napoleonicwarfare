@@ -7,23 +7,41 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
+using MathF = TaleWorlds.Library.MathF;
 
 namespace Alliance.Common.Extensions.PE
 {
-    public class PE_AttachToAgent : UsableMissionObject, IStray
+    abstract public class PE_UsableFromDistance : UsableMissionObject
     {
+        public float Distance = 4f;
+
+        public bool IsUsable(Agent user)
+        {
+            float distance = base.GameEntity.GetGlobalFrame().origin.Distance(user.Position);
+            return distance <= this.Distance;
+        }
+    }
+    public class PE_AttachToAgent : PE_UsableFromDistance, IStray
+    {private MatrixFrame _attachPointLocalFrame;
+private bool _hasAttachPointLocalFrame;
+        public bool AttachableToHorse = false;
+        public string AttachableHorseType = "";
+        public int StrayDurationSeconds = 7200;
+        private long WillBeDeletedAt = 0;
+        public string ParticleEffectOnDestroy = "";
+        public string SoundEffectOnDestroy = "";
+
+        public float MaxHitPoint = 500f;
+        protected float _hitPoint;
+
         public float HitPoint
         {
-            get
-            {
-                return this._hitPoint;
-            }
+            get => this._hitPoint;
             set
             {
-                bool flag = !this._hitPoint.Equals(value);
-                if (flag)
+                if (!this._hitPoint.Equals(value))
                 {
-                    this._hitPoint = TaleWorlds.Library.MathF.Max(value, 0f);
+                    this._hitPoint = MathF.Max(value, 0f);
                 }
             }
         }
@@ -32,95 +50,91 @@ namespace Alliance.Common.Extensions.PE
 
         public override ScriptComponentBehavior.TickRequirement GetTickRequirement()
         {
-            bool isClientOrReplay = GameNetwork.IsClientOrReplay;
-            ScriptComponentBehavior.TickRequirement result;
-            if (isClientOrReplay)
+            if (GameNetwork.IsClientOrReplay)
             {
-                result = (base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel);
+                return base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel;
             }
-            else
+            else if (GameNetwork.IsServer && this.AttachedTo != null)
             {
-                bool flag = GameNetwork.IsServer && this.AttachedTo != null;
-                if (flag)
-                {
-                    result = (base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel);
-                }
-                else
-                {
-                    result = base.GetTickRequirement();
-                }
+                return base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel;
             }
-            return result;
+            return base.GetTickRequirement();
         }
 
         protected override void OnTick(float dt)
         {
-            bool flag = this.AttachedTo == null;
-            if (!flag)
+            if (this.AttachedTo == null)
+                return;
+
+            if (!this.AttachedTo.IsActive())
             {
-                bool flag2 = !this.AttachedTo.IsActive();
-                if (flag2)
-                {
-                    this.DetachFromAgentAux();
-                }
-                else
-                {
-                    WeakGameEntity parent = base.GameEntity.Parent;
-                    MatrixFrame globalFrame = parent.GetGlobalFrame();
-                    globalFrame.rotation = this.AttachedTo.Frame.rotation;
-                    globalFrame.Rotate(4.712389f, Vec3.Up);
-                    parent.SetGlobalFrame(globalFrame);
-                    globalFrame = parent.GetGlobalFrame();
-                    Vec3 origin = base.GameEntity.GetGlobalFrame().origin;
-                    Vec3 position = this.AttachedTo.Position;
-                    Vec3 v = position - origin;
-                    globalFrame.origin += v;
-                    Vec3 u = default(Vec3);
-                    float num = 0f;
-                    base.Scene.GetTerrainHeightAndNormal(globalFrame.origin.AsVec2, out num, out u);
-                    bool flag3 = globalFrame.origin.z <= num;
-                    if (flag3)
-                    {
-                        globalFrame.origin.z = num;
-                        globalFrame.rotation.u = u;
-                        globalFrame.rotation.Orthonormalize();
-                    }
-                    else
-                    {
-                        globalFrame.rotation.u = new Vec3(0f, 0f, 1f, -1f);
-                        globalFrame.rotation.Orthonormalize();
-                    }
-                    parent.SetGlobalFrame(globalFrame);
-                }
+                this.DetachFromAgentAux();
+                return;
             }
+
+            UpdateAttachedTransform();
         }
 
         public void ResetStrayDuration()
         {
-            this.WillBeDeletedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + (long)this.StrayDurationSeconds;
+            this.WillBeDeletedAt = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + this.StrayDurationSeconds;
         }
 
         protected override void OnInit()
         {
+            Debug.Print(
+                "[ATTACH INIT] Entity=" + base.GameEntity.Name +
+                " Id=" + base.Id +
+                " Parent=" + (base.GameEntity.Parent.IsValid ? base.GameEntity.Parent.Name : "NO_PARENT") +
+                " IsServer=" + GameNetwork.IsServer +
+                " IsClientOrReplay=" + GameNetwork.IsClientOrReplay
+            );
             base.OnInit();
-            this.ActionMessage = new TextObject("Attach Object", null);
-            TextObject textObject = new TextObject("Press {KEY} To Attach", null);
-            textObject.SetTextVariable("KEY", HyperlinkTexts.GetKeyHyperlinkText(HotKeyManager.GetHotKeyId("CombatHotKeyCategory", 13)));
-            this.DescriptionMessage = textObject;
+            base.ActionMessage = new TextObject("Attach Object");
+            TextObject descriptionMessage = new TextObject("Press {KEY} To Attach");
+            descriptionMessage.SetTextVariable("KEY", HyperlinkTexts.GetKeyHyperlinkText(HotKeyManager.GetHotKeyId("CombatHotKeyCategory", 13)));
+            base.DescriptionMessage = descriptionMessage;
             this.ResetStrayDuration();
-            WeakGameEntity parent = base.GameEntity.Parent;
-            SynchedMissionObject firstScriptOfType = parent.GetFirstScriptOfType<SynchedMissionObject>();
-            FieldInfo field = typeof(SynchedMissionObject).GetField("_initialSynchFlags", BindingFlags.Instance | BindingFlags.NonPublic);
-            SynchedMissionObject.SynchFlags synchFlags = (SynchedMissionObject.SynchFlags)field.GetValue(firstScriptOfType);
-            synchFlags |= SynchedMissionObject.SynchFlags.SynchTransform;
-            field.SetValue(firstScriptOfType, synchFlags);
+            WeakGameEntity parentEntity = base.GameEntity.Parent;
+            if (parentEntity.IsValid)
+            {
+                // This is the local offset of the attach-point child inside the cannon prefab.
+                _attachPointLocalFrame = base.GameEntity.GetFrame();
+                _hasAttachPointLocalFrame = true;
+
+                SynchedMissionObject synchObject = parentEntity.GetFirstScriptOfType<SynchedMissionObject>();
+
+                if (synchObject != null)
+                {
+                    FieldInfo prop = typeof(SynchedMissionObject).GetField(
+                        "_initialSynchFlags",
+                        BindingFlags.NonPublic | BindingFlags.Instance);
+
+                    if (prop != null)
+                    {
+                        SynchedMissionObject.SynchFlags syncFlags =
+                            (SynchedMissionObject.SynchFlags)prop.GetValue(synchObject);
+
+                        syncFlags |= SynchedMissionObject.SynchFlags.SynchTransform;
+                        prop.SetValue(synchObject, syncFlags);
+                    }
+                }
+            }
             base.IsInstantUse = true;
             this.HitPoint = this.MaxHitPoint;
         }
-
         public override bool IsDisabledForAgent(Agent agent)
         {
-            return base.IsDeactivated || (base.IsDisabledForPlayers && !agent.IsAIControlled) || !agent.IsOnLand();
+
+            if (!agent.Character.StringId.Contains("artillery") || !agent.IsPlayerControlled)
+            {
+                return true;
+            }
+            if (!IsDeactivated && agent.MountAgent == null && (!IsDisabledForPlayers || agent.IsAIControlled))
+            {
+                return !agent.IsOnLand();
+            }
+            return false;
         }
 
         public void SetAttachedAgent(Agent attachedTo)
@@ -130,73 +144,162 @@ namespace Alliance.Common.Extensions.PE
 
         public override void OnUse(Agent userAgent, sbyte agentBoneIndex)
         {
+            Debug.Print("[USING LOG] OnUse entered: " + this.GetType().Name);
+
             base.OnUse(userAgent, agentBoneIndex);
-            Debug.Print("[USING LOG] AGENT USING " + base.GetType().Name, 0, Debug.DebugColor.White, 17592186044416UL);
-            bool flag = this.AttachedTo == null;
-            if (flag)
+
+            Debug.Print("[USING LOG] After base.OnUse");
+
+            if (userAgent == null)
+                return;
+
+            if (this.AttachedTo == null)
             {
-                bool attachableToHorse = this.AttachableToHorse;
-                if (attachableToHorse)
+                if (this.AttachableToHorse)
                 {
-                    bool flag2 = !userAgent.HasMount;
-                    if (!flag2)
-                    {
-                        bool flag3 = this.AttachableHorseType != "" && userAgent.MountAgent.Monster.StringId != this.AttachableHorseType;
-                        if (!flag3)
-                        {
-                            this.AttachToAgentAux(userAgent.MountAgent);
-                        }
-                    }
+                    Debug.Print("[USING LOG] Horse attach mode. HasMount=" + userAgent.HasMount);
+
+                    if (!userAgent.HasMount || userAgent.MountAgent == null)
+                        return;
+
+                    string horseType = userAgent.MountAgent.Monster != null
+                        ? userAgent.MountAgent.Monster.StringId
+                        : "";
+
+                    if (!string.IsNullOrEmpty(this.AttachableHorseType) && horseType != this.AttachableHorseType)
+                        return;
+
+                    Debug.Print("[USING LOG] Attaching to mount: " + horseType);
+                    this.AttachToAgentAux(userAgent.MountAgent);
+                    return;
                 }
-                else
-                {
-                    bool hasMount = userAgent.HasMount;
-                    if (!hasMount)
-                    {
-                        this.AttachToAgentAux(userAgent);
-                    }
-                }
+
+                if (userAgent.HasMount)
+                    return;
+
+                Debug.Print("[USING LOG] Attaching to user agent");
+                this.AttachToAgentAux(userAgent);
+                return;
             }
-            else
-            {
-                bool flag4 = this.AttachedTo == userAgent || (userAgent.MountAgent != null && this.AttachedTo == userAgent.MountAgent);
-                if (flag4)
-                {
-                    this.DetachFromAgentAux();
-                }
-            }
+
+            Debug.Print("[USING LOG] Detaching from: " + this.AttachedTo.Name);
+            this.DetachFromAgentAux();
         }
 
         private void DetachFromAgentAux()
         {
+            IMoveable moveable = GetParentMoveable();
+
+            if (moveable != null)
+            {
+                moveable.ResetStoredYawFromCurrentFrame();
+
+                moveable.SetExternalFrameControl(false);
+
+                if (GameNetwork.IsServer)
+                {
+                    moveable.SyncCurrentFrame();
+                }
+            }
+
             this.AttachedTo = null;
+            this.SetScriptComponentToTick(this.GetTickRequirement());
         }
 
         private void AttachToAgentAux(Agent attachableAgent)
         {
+            if (attachableAgent == null)
+                return;
+
             this.ResetStrayDuration();
             this.AttachedTo = attachableAgent;
+
+            IMoveable moveable = GetParentMoveable();
+
+            if (moveable != null)
+            {
+                moveable.SetExternalFrameControl(true);
+            }
+
+            UpdateAttachedTransform();
+
+            this.SetScriptComponentToTick(this.GetTickRequirement());
+        }
+        private void UpdateAttachedTransform()
+        {
+            if (this.AttachedTo == null)
+                return;
+
+            WeakGameEntity parentEntity = base.GameEntity.Parent;
+
+            if (!parentEntity.IsValid)
+                return;
+
+            if (!_hasAttachPointLocalFrame)
+            {
+                _attachPointLocalFrame = base.GameEntity.GetFrame();
+                _hasAttachPointLocalFrame = true;
+            }
+
+            MatrixFrame horseFrame = this.AttachedTo.Frame;
+            MatrixFrame parentFrame = parentEntity.GetGlobalFrame();
+
+            parentFrame.rotation = horseFrame.rotation;
+
+            Vec3 localAttachOffset = _attachPointLocalFrame.origin;
+            Vec3 rotatedAttachOffset = parentFrame.rotation.TransformToParent(localAttachOffset);
+
+            // This is the important movement line.
+            parentFrame.origin = horseFrame.origin - rotatedAttachOffset;
+
+            Vec3 normalVector;
+            float terrainZ;
+
+            base.Scene.GetTerrainHeightAndNormal(
+                parentFrame.origin.AsVec2,
+                out terrainZ,
+                out normalVector);
+
+            parentFrame.origin.z = terrainZ;
+            parentFrame.rotation.u = normalVector;
+            parentFrame.rotation.Orthonormalize();
+
+            parentEntity.SetGlobalFrame(parentFrame);
+
+            IMoveable moveable = GetParentMoveable();
+
+            if (moveable != null)
+            {
+                moveable.ResetStoredYawFromCurrentFrame();
+
+                if (GameNetwork.IsServer)
+                {
+                    moveable.SyncCurrentFrame();
+                }
+            }
+        }
+        private IMoveable GetParentMoveable()
+        {
+            WeakGameEntity parentEntity = base.GameEntity.Parent;
+
+            if (!parentEntity.IsValid)
+                return null;
+
+            UsableMachine usableMachine = parentEntity.GetFirstScriptOfType<UsableMachine>();
+
+            return usableMachine as IMoveable;
         }
 
         public override TextObject GetDescriptionText(WeakGameEntity gameEntity)
         {
-            return new TextObject("Attach");
+            return new TextObject("");
         }
 
         public bool IsStray()
         {
-            bool flag = this.AttachedTo != null;
-            bool result;
-            if (flag)
-            {
-                result = false;
-            }
-            else
-            {
-                bool flag2 = this.WillBeDeletedAt < DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-                result = flag2;
-            }
-            return result;
+            if (this.AttachedTo != null) return false;
+            if (this.WillBeDeletedAt < DateTimeOffset.UtcNow.ToUnixTimeSeconds()) return true;
+            return false;
         }
 
         public void SetHitPoint(float hitPoint, Vec3 impactDirection)
@@ -207,32 +310,10 @@ namespace Alliance.Common.Extensions.PE
 
         protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage)
         {
-            reportDamage = true;
-            MissionWeapon missionWeapon = weapon;
-            WeaponComponentData currentUsageItem = missionWeapon.CurrentUsageItem;
-            this.SetHitPoint(this.HitPoint - (float)damage, impactDirection);
+            reportDamage = false;
+            damage = 0;
             finalDamage = (float)damage;
             return false;
         }
-
-        public PE_AttachToAgent() : base(false)
-        {
-        }
-
-        public bool AttachableToHorse = false;
-
-        public string AttachableHorseType = "";
-
-        public int StrayDurationSeconds = 7200;
-
-        private long WillBeDeletedAt = 0L;
-
-        public string ParticleEffectOnDestroy = "";
-
-        public string SoundEffectOnDestroy = "";
-
-        public float MaxHitPoint = 500f;
-
-        protected float _hitPoint;
     }
 }

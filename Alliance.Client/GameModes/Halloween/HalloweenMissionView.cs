@@ -1,4 +1,5 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
+﻿using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace Alliance.Client.GameModes.Halloween
             {
                 new FormationStatusView(),
                 new AL_MainAgentEquipmentController(),
+                new HUDExtensionUIHandlerView(),
 
                 MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
 				MultiplayerViewCreator.CreateMissionMultiplayerPreloadView(mission),
@@ -35,7 +37,6 @@ namespace Alliance.Client.GameModes.Halloween
 				MultiplayerViewCreator.CreateMultiplayerEndOfBattleUIHandler(),
 				MultiplayerViewCreator.CreateLobbyEquipmentUIHandler(),
 				MultiplayerViewCreator.CreatePollProgressUIHandler(),
-                MultiplayerViewCreator.CreateMultiplayerMissionHUDExtensionUIHandler(),
                 ViewCreator.CreateOptionsUIHandler(),
 				ViewCreator.CreateMissionMainAgentEquipDropView(mission),
 				MultiplayerViewCreator.CreateMultiplayerAdminPanelUIHandler(),

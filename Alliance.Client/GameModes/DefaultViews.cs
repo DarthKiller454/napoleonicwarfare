@@ -1,4 +1,5 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
+﻿using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
 using TaleWorlds.MountAndBlade;
@@ -24,6 +25,7 @@ namespace Alliance.Client.GameModes
 
 				// Use Old System for Factions
                 MultiplayerViewCreator.CreateLobbyEquipmentUIHandler(),
+                new HUDExtensionUIHandlerView(),
 
 				// Default views from native
 				MultiplayerViewCreator.CreateMultiplayerFactionBanVoteUIHandler(),

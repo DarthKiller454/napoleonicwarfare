@@ -1,5 +1,4 @@
-﻿using Alliance.Client.Patch.HarmonyPatch;
-using Alliance.Common.Patch.HarmonyPatch;
+﻿using Alliance.Common.Patch.HarmonyPatch;
 using TaleWorlds.MountAndBlade;
 using static Alliance.Common.Utilities.Logger;
 
@@ -68,7 +67,6 @@ namespace Alliance.Common.Patch
             //patchSuccess &= Patch_UsableMachine_OnInit.Patch();
 			
 			patchSuccess &= Patch_KeyBinder.Patch();
-			//patchSuccess &= Patch_AdvancedCombat.Patch();
 			patchSuccess &= Patch_ActionSetCode.Patch();
 			patchSuccess &= Patch_MBObjectManager.Patch();
 			patchSuccess &= Patch_Banner.Patch();

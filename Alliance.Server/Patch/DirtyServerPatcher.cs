@@ -34,6 +34,7 @@ namespace Alliance.Server.Patch
 			patchSuccess &= Patch_Formation.Patch();
 			patchSuccess &= Patch_Module.Patch();
 			patchSuccess &= Patch_ThreatSeeker.Patch();
+			patchSuccess &= Patch_MissionLobbyEquipmentNetworkComponent.Patch();
 
             if (Config.Instance.ShowOfficers)
 			{

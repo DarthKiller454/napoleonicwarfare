@@ -14,7 +14,7 @@ namespace Alliance.Common.Extensions.CombatLogic
     public class KillfeedMissionLogic : MissionLogic
     {
 
-        bool _isGeneralFeedEnabled = BannerlordConfig.KillFeedVisualType< 2;
+        private static readonly bool _isGeneralFeedEnabled = BannerlordConfig.KillFeedVisualType< 2;
 
         public KillfeedMissionLogic()
         {
@@ -121,7 +121,7 @@ namespace Alliance.Common.Extensions.CombatLogic
             );
         }
 
-        private void ShowSuicideFeed(Agent victim)
+        private static void ShowSuicideFeed(Agent victim)
         {
             if (victim == null)
                 return;
@@ -138,7 +138,7 @@ namespace Alliance.Common.Extensions.CombatLogic
             );
         }
 
-        private string GetWeaponText(KillingBlow blow)
+        private static string GetWeaponText(KillingBlow blow)
         {
             WeaponClass weapon = (WeaponClass)blow.WeaponClass;
 
@@ -224,7 +224,7 @@ namespace Alliance.Common.Extensions.CombatLogic
             }
         }
 
-        private bool IsHeadshot(KillingBlow blow)
+        private static bool IsHeadshot(KillingBlow blow)
         {
             return blow.IsMissile && blow.VictimBodyPart == BoneBodyPartType.Head;
         }

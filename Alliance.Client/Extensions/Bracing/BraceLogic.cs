@@ -57,7 +57,7 @@ namespace Alliance.Client.Extensions.Bracing.Views
         private void SendBraceRequest(Agent agent)
         {
             GameNetwork.BeginModuleEventAsClient();
-            GameNetwork.WriteMessage(new CS_Bracing(agent.Index));
+            GameNetwork.WriteMessage(new CS_BracingRequest(agent.Index));
             GameNetwork.EndModuleEventAsClient();
         }
     }

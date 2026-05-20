@@ -1,5 +1,4 @@
 ﻿using Alliance.Client.Patch.HarmonyPatch;
-using Alliance.Common.Patch.HarmonyPatch;
 using static Alliance.Common.Utilities.Logger;
 
 namespace Alliance.Client.Patch
@@ -14,8 +13,6 @@ namespace Alliance.Client.Patch
         {
             bool patchSuccess = true;
 
-            //TODO : Following 1.2 -> Check if any patch can be removed
-            //patchSuccess &= Patch_MissionMultiplayerGameModeFlagDominationClient.Patch();
             patchSuccess &= Patch_MissionNetworkComponent.Patch();
             patchSuccess &= Patch_DefaultAdminPanelOptionProvider.Patch();
             patchSuccess &= Patch_MPArmoryVM.Patch();
@@ -23,6 +20,9 @@ namespace Alliance.Client.Patch
             patchSuccess &= Patch_MissionAgentLabelView.Patch();
             patchSuccess &= Patch_MPChatLog.Patch();
             patchSuccess &= Patch_MPChatLineVM.Patch();
+            patchSuccess &= Patch_RangedSiegeWeaponView_HandleUserAiming.Patch();
+            patchSuccess &= Patch_LobbyClient_RequestJoinCustomGame.Patch();
+            patchSuccess &= Patch_LobbyClient_OnJoinCustomGameResultMessage.Patch();
 
             if (patchSuccess) Log(SubModule.ModuleId + " - Patches successful", LogLevel.Information);
             return patchSuccess;

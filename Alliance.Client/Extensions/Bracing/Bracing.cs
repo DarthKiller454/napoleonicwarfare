@@ -16,7 +16,7 @@ namespace Alliance.Client.Extensions.Bracing.Handlers
             //reg.Register<CS_Bracing>(HandleBracing);
         }
 
-        public void HandleBracing(CS_Bracing message)
+        public void HandleBracing(CS_BracingSend message)
         {
             Agent agent = Mission.MissionNetworkHelper.GetAgentFromIndex(message.RequestedAgentIndex); 
         }

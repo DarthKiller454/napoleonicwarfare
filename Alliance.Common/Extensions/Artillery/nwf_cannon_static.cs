@@ -968,7 +968,7 @@ namespace Alliance.Common.Extensions.Artillery
             return mat2.f;
         }
 
-        private bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
+        private static bool HasTagInPrefabOrChildren(GameEntity entity, string tag)
         {
             if (entity.HasTag(tag))
                 return true;
@@ -1078,13 +1078,15 @@ namespace Alliance.Common.Extensions.Artillery
 
 
             }
+            if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
+            {
+                reportDamage = false;
+                damage = 0;
+            }
             if (this.DestroyedByStoneOnly)
             {
-                if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
-                {
-                    reportDamage = false;
-                    damage = 0;
-                }
+                reportDamage = false;
+                damage = 0;
             }
 
 

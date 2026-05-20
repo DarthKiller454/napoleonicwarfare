@@ -81,13 +81,4 @@ namespace Alliance.Common.Extensions.Artillery
 
         private List<CannonStandingPoint> _rotateStandingPoints;
     }
-    public class BallistaCannon : Ballista
-    {
-        public BallistaCannon()
-            {
-
-            }
-
-
-    }
 }

@@ -31,7 +31,30 @@ namespace Alliance.Client.Patch.HarmonyPatch
                 typeof(Func<string>),
                 typeof(Action<bool>)
             };
+            MethodInfo refreshPlayerDataTarget = typeof(MPLobbyHomeVM).GetMethod(
+                "RefreshPlayerData",
+                BindingFlags.Instance | BindingFlags.Public);
 
+            MethodInfo refreshPlayerDataPostfix = typeof(Patch_Nickname).GetMethod(
+                nameof(Postfix_RefreshPlayerData),
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            Harmony.Patch(
+                refreshPlayerDataTarget,
+                postfix: new HarmonyMethod(refreshPlayerDataPostfix));
+
+
+            MethodInfo onPlayerNameUpdatedTarget = typeof(MPLobbyHomeVM).GetMethod(
+                "OnPlayerNameUpdated",
+                BindingFlags.Instance | BindingFlags.Public);
+
+            MethodInfo onPlayerNameUpdatedPostfix = typeof(Patch_Nickname).GetMethod(
+                nameof(Postfix_OnPlayerNameUpdated),
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            Harmony.Patch(
+                onPlayerNameUpdatedTarget,
+                postfix: new HarmonyMethod(onPlayerNameUpdatedPostfix));
             var target = typeof(MPLobbyVM).GetConstructor(
                 BindingFlags.Instance | BindingFlags.Public,
                 null,
@@ -59,6 +82,21 @@ namespace Alliance.Client.Patch.HarmonyPatch
                 );
 
             __instance.RefreshValues();
+        }
+        private static void Postfix_RefreshPlayerData(MPLobbyHomeVM __instance)
+        {
+            if (__instance is NWFLobbyHomeVM nwfHome)
+            {
+                nwfHome.ReapplyCachedNickname();
+            }
+        }
+
+        private static void Postfix_OnPlayerNameUpdated(MPLobbyHomeVM __instance)
+        {
+            if (__instance is NWFLobbyHomeVM nwfHome)
+            {
+                nwfHome.ReapplyCachedNickname();
+            }
         }
     }
 }
