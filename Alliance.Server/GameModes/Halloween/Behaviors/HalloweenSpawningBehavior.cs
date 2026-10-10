@@ -10,10 +10,8 @@ using TaleWorlds.MountAndBlade;
 
 namespace Alliance.Server.GameModes.Halloween.Behaviors
 {
-    // Token: 0x0200001C RID: 28
     public class HalloweenSpawningBehavior : SpawningBehaviorBase
     {
-        // Token: 0x06000187 RID: 391 RVA: 0x0000707B File Offset: 0x0000527B
         public override void Initialize(SpawnComponent spawnComponent)
         {
             base.Initialize(spawnComponent);
@@ -24,14 +22,12 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             }
         }
 
-        // Token: 0x06000188 RID: 392 RVA: 0x000070A9 File Offset: 0x000052A9
         public override void Clear()
         {
             base.Clear();
             base.OnAllAgentsFromPeerSpawnedFromVisuals -= this.OnAllAgentsFromPeerSpawnedFromVisuals;
         }
 
-        // Token: 0x06000189 RID: 393 RVA: 0x000070C3 File Offset: 0x000052C3
         public override void OnTick(float dt)
         {
             if (this.IsSpawningEnabled && this.SpawnCheckTimer.Check(base.Mission.CurrentTime))
@@ -41,7 +37,6 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             base.OnTick(dt);
         }
 
-        // Token: 0x0600018A RID: 394 RVA: 0x000070F4 File Offset: 0x000052F4
         protected override void SpawnAgents()
         {
             BasicCultureObject @object = MBObjectManager.Instance.GetObject<BasicCultureObject>(MultiplayerOptions.OptionType.CultureTeam1.GetStrValue(MultiplayerOptions.MultiplayerOptionsAccessMode.CurrentMapOptions));
@@ -93,13 +88,11 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             }
         }
 
-        // Token: 0x0600018B RID: 395 RVA: 0x000073E0 File Offset: 0x000055E0
         public override bool AllowEarlyAgentVisualsDespawning(MissionPeer lobbyPeer)
         {
             return true;
         }
 
-        // Token: 0x0600018C RID: 396 RVA: 0x000073E4 File Offset: 0x000055E4
         public override int GetMaximumReSpawnPeriodForPeer(MissionPeer peer)
         {
             if (this.GameMode.WarmupComponent != null && this.GameMode.WarmupComponent.IsInWarmup)
@@ -120,13 +113,11 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             return -1;
         }
 
-        // Token: 0x0600018D RID: 397 RVA: 0x00007448 File Offset: 0x00005648
         protected override bool IsRoundInProgress()
         {
             return Mission.Current.CurrentState == Mission.State.Continuing;
         }
 
-        // Token: 0x0600018E RID: 398 RVA: 0x00007458 File Offset: 0x00005658
         private new void OnAllAgentsFromPeerSpawnedFromVisuals(MissionPeer peer)
         {
             bool flag = peer.Team == base.Mission.AttackerTeam;
@@ -135,7 +126,6 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             this.GameMode.ChangeCurrentGoldForPeer(peer, this.GameMode.GetCurrentGoldForPeer(peer) - mpheroClass.TroopCasualCost);
         }
 
-        // Token: 0x0600018F RID: 399 RVA: 0x000074D6 File Offset: 0x000056D6
         public HalloweenSpawningBehavior()
         {
         }

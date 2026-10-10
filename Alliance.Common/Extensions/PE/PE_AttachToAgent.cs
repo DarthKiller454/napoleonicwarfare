@@ -22,8 +22,9 @@ namespace Alliance.Common.Extensions.PE
         }
     }
     public class PE_AttachToAgent : PE_UsableFromDistance, IStray
-    {private MatrixFrame _attachPointLocalFrame;
-private bool _hasAttachPointLocalFrame;
+    {
+        private MatrixFrame _attachPointLocalFrame;
+        private bool _hasAttachPointLocalFrame;
         public bool AttachableToHorse = false;
         public string AttachableHorseType = "";
         public int StrayDurationSeconds = 7200;
@@ -50,14 +51,13 @@ private bool _hasAttachPointLocalFrame;
 
         public override ScriptComponentBehavior.TickRequirement GetTickRequirement()
         {
-            if (GameNetwork.IsClientOrReplay)
+            if (this.AttachedTo != null)
             {
-                return base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel;
+                return base.GetTickRequirement()
+                    | ScriptComponentBehavior.TickRequirement.Tick
+                    | ScriptComponentBehavior.TickRequirement.TickParallel;
             }
-            else if (GameNetwork.IsServer && this.AttachedTo != null)
-            {
-                return base.GetTickRequirement() | ScriptComponentBehavior.TickRequirement.Tick | ScriptComponentBehavior.TickRequirement.TickParallel;
-            }
+
             return base.GetTickRequirement();
         }
 
@@ -82,13 +82,6 @@ private bool _hasAttachPointLocalFrame;
 
         protected override void OnInit()
         {
-            Debug.Print(
-                "[ATTACH INIT] Entity=" + base.GameEntity.Name +
-                " Id=" + base.Id +
-                " Parent=" + (base.GameEntity.Parent.IsValid ? base.GameEntity.Parent.Name : "NO_PARENT") +
-                " IsServer=" + GameNetwork.IsServer +
-                " IsClientOrReplay=" + GameNetwork.IsClientOrReplay
-            );
             base.OnInit();
             base.ActionMessage = new TextObject("Attach Object");
             TextObject descriptionMessage = new TextObject("Press {KEY} To Attach");
@@ -144,11 +137,8 @@ private bool _hasAttachPointLocalFrame;
 
         public override void OnUse(Agent userAgent, sbyte agentBoneIndex)
         {
-            Debug.Print("[USING LOG] OnUse entered: " + this.GetType().Name);
 
             base.OnUse(userAgent, agentBoneIndex);
-
-            Debug.Print("[USING LOG] After base.OnUse");
 
             if (userAgent == null)
                 return;
@@ -157,7 +147,6 @@ private bool _hasAttachPointLocalFrame;
             {
                 if (this.AttachableToHorse)
                 {
-                    Debug.Print("[USING LOG] Horse attach mode. HasMount=" + userAgent.HasMount);
 
                     if (!userAgent.HasMount || userAgent.MountAgent == null)
                         return;
@@ -168,21 +157,15 @@ private bool _hasAttachPointLocalFrame;
 
                     if (!string.IsNullOrEmpty(this.AttachableHorseType) && horseType != this.AttachableHorseType)
                         return;
-
-                    Debug.Print("[USING LOG] Attaching to mount: " + horseType);
                     this.AttachToAgentAux(userAgent.MountAgent);
                     return;
                 }
 
                 if (userAgent.HasMount)
                     return;
-
-                Debug.Print("[USING LOG] Attaching to user agent");
                 this.AttachToAgentAux(userAgent);
                 return;
             }
-
-            Debug.Print("[USING LOG] Detaching from: " + this.AttachedTo.Name);
             this.DetachFromAgentAux();
         }
 
@@ -190,10 +173,15 @@ private bool _hasAttachPointLocalFrame;
         {
             IMoveable moveable = GetParentMoveable();
 
+            WeakGameEntity parentEntity = base.GameEntity.Parent;
+            MatrixFrame finalFrame = MatrixFrame.Identity;
+
+            if (parentEntity.IsValid)
+                finalFrame = parentEntity.GetGlobalFrame();
+
             if (moveable != null)
             {
                 moveable.ResetStoredYawFromCurrentFrame();
-
                 moveable.SetExternalFrameControl(false);
 
                 if (GameNetwork.IsServer)
@@ -204,6 +192,13 @@ private bool _hasAttachPointLocalFrame;
 
             this.AttachedTo = null;
             this.SetScriptComponentToTick(this.GetTickRequirement());
+
+            if (GameNetwork.IsServer)
+            {
+                GameNetwork.BeginBroadcastModuleEvent();
+                GameNetwork.WriteMessage(new SyncDetachFromAgent(this, finalFrame));
+                GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+            }
         }
 
         private void AttachToAgentAux(Agent attachableAgent)
@@ -224,6 +219,13 @@ private bool _hasAttachPointLocalFrame;
             UpdateAttachedTransform();
 
             this.SetScriptComponentToTick(this.GetTickRequirement());
+
+            if (GameNetwork.IsServer)
+            {
+                GameNetwork.BeginBroadcastModuleEvent();
+                GameNetwork.WriteMessage(new SyncAttachToAgent(this, attachableAgent));
+                GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.None);
+            }
         }
         private void UpdateAttachedTransform()
         {
@@ -265,18 +267,37 @@ private bool _hasAttachPointLocalFrame;
             parentFrame.rotation.Orthonormalize();
 
             parentEntity.SetGlobalFrame(parentFrame);
+            if (GameNetwork.IsServer)
+            {
+                IMoveable moveable = GetParentMoveable();
+
+                if (moveable != null)
+                {
+                    moveable.ResetStoredYawFromCurrentFrame();
+                    moveable.SyncCurrentFrame();
+                }
+            }
+        }
+        public void SetDetachedFromServer(MatrixFrame finalFrame)
+        {
+            WeakGameEntity parentEntity = base.GameEntity.Parent;
+
+            this.AttachedTo = null;
 
             IMoveable moveable = GetParentMoveable();
 
             if (moveable != null)
             {
+                moveable.SetExternalFrameControl(false);
                 moveable.ResetStoredYawFromCurrentFrame();
-
-                if (GameNetwork.IsServer)
-                {
-                    moveable.SyncCurrentFrame();
-                }
             }
+
+            if (parentEntity.IsValid)
+            {
+                parentEntity.SetGlobalFrame(finalFrame);
+            }
+
+            this.SetScriptComponentToTick(this.GetTickRequirement());
         }
         private IMoveable GetParentMoveable()
         {
@@ -308,11 +329,13 @@ private bool _hasAttachPointLocalFrame;
             MatrixFrame globalFrame = base.GameEntity.GetGlobalFrame();
         }
 
-        protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage)
+        protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage, out float fireDamage, out float modifiedFireDamage)
         {
             reportDamage = false;
             damage = 0;
             finalDamage = (float)damage;
+            fireDamage = 0f;
+            modifiedFireDamage = 0f;
             return false;
         }
     }

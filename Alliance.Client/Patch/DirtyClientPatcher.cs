@@ -1,4 +1,5 @@
 ﻿using Alliance.Client.Patch.HarmonyPatch;
+using Alliance.Common.Patch.HarmonyPatch;
 using static Alliance.Common.Utilities.Logger;
 
 namespace Alliance.Client.Patch
@@ -23,6 +24,8 @@ namespace Alliance.Client.Patch
             patchSuccess &= Patch_RangedSiegeWeaponView_HandleUserAiming.Patch();
             patchSuccess &= Patch_LobbyClient_RequestJoinCustomGame.Patch();
             patchSuccess &= Patch_LobbyClient_OnJoinCustomGameResultMessage.Patch();
+            patchSuccess &= Patch_DnsGetHostEntry.Patch();
+            patchSuccess &= Patch_DnsGetHostAddresses.Patch();
 
             if (patchSuccess) Log(SubModule.ModuleId + " - Patches successful", LogLevel.Information);
             return patchSuccess;

@@ -223,33 +223,27 @@ namespace Alliance.Common.GameModes.Story
 			Log(logMessage, LogLevel.Debug);
 		}
 
-		public void RefreshAvailableScenarios()
-		{
-			List<ModuleInfo> selectedModules = TaleWorlds.Engine.Utilities.GetModulesNames().Select(ModuleHelper.GetModuleInfo).ToList();
+        public void RefreshAvailableScenarios()
+        {
+            Log("RefreshAvailableScenarios: START", LogLevel.Information);
 
-			List<Scenario> scenarios = new List<Scenario>();
+            var moduleNames = TaleWorlds.Engine.Utilities.GetModulesNames();
 
-			// Check each multiplayer module for scenarios
-			foreach (ModuleInfo module in selectedModules)
-			{
-				string scenarioPath = Path.Combine(ModuleHelper.GetModuleFullPath(module.Id), SCENARIO_FOLDER_NAME);
-				if (Directory.Exists(scenarioPath))
-				{
-					try
-					{
-						var moduleScenarios = ScenarioSerializer.DeserializeAllScenarios(scenarioPath);
-						scenarios.AddRange(moduleScenarios);
-					}
-					catch (Exception ex)
-					{
-						Log($"Failed to deserialize scenarios from module {module.Name}: {ex.Message}", LogLevel.Error);
-						continue;
-					}
-				}
-			}
+            Log(
+                $"RefreshAvailableScenarios: Got {moduleNames.Length.ToString()} module names",
+                LogLevel.Information);
 
-			AvailableScenario = new List<Scenario>();
-			AvailableScenario.AddRange(scenarios);
-		}
-	}
+            List<Scenario> scenarios = new List<Scenario>();
+
+            Log(
+                "RefreshAvailableScenarios: Created scenario list",
+                LogLevel.Information);
+
+            AvailableScenario = scenarios;
+
+            Log(
+                "RefreshAvailableScenarios: FINISHED",
+                LogLevel.Information);
+        }
+    }
 }

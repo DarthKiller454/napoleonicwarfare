@@ -1,4 +1,5 @@
-﻿using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
+﻿using Alliance.Client.Extensions.ExNativeUI.Artillery;
+using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
 using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
@@ -25,13 +26,13 @@ namespace Alliance.Client.GameModes
 
 				// Use Old System for Factions
                 MultiplayerViewCreator.CreateLobbyEquipmentUIHandler(),
-                new HUDExtensionUIHandlerView(),
+				new HUDExtensionUIHandlerView(),
 
 				// Default views from native
 				MultiplayerViewCreator.CreateMultiplayerFactionBanVoteUIHandler(),
-                MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
-                ViewCreator.CreateMissionAgentStatusUIHandler(mission),
-                MultiplayerViewCreator.CreateMultiplayerAdminPanelUIHandler(),
+				MultiplayerViewCreator.CreateMissionServerStatusUIHandler(),
+				ViewCreator.CreateMissionAgentStatusUIHandler(mission),
+				MultiplayerViewCreator.CreateMultiplayerAdminPanelUIHandler(),
 				MultiplayerViewCreator.CreateMissionMultiplayerPreloadView(mission),
 				MultiplayerViewCreator.CreateMissionKillNotificationUIHandler(),
 				ViewCreator.CreateMissionMainAgentCheerBarkControllerView(mission),
@@ -41,9 +42,9 @@ namespace Alliance.Client.GameModes
 				ViewCreator.CreateMissionMainAgentEquipDropView(mission),
 				ViewCreator.CreateMissionBoundaryCrossingView(),
 				MultiplayerViewCreator.CreateMissionFlagMarkerUIHandler(),
-                new MissionBoundaryWallView(),
+				new MissionBoundaryWallView(),
 				new MissionItemContourControllerView(),
-				new MissionAgentContourControllerView()
+				new MissionAgentContourControllerView(),
 			};
 		}
 	}

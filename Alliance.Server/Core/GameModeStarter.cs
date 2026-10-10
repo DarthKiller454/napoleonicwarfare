@@ -1,189 +1,275 @@
 ﻿using Alliance.Common.Core.Configuration;
+using Alliance.Common.Core.Configuration.Models;
 using Alliance.Common.GameModes;
 using Alliance.Common.GameModes.Lobby;
 using NetworkMessages.FromServer;
 using System.Threading;
+using Alliance.Common.Extensions.PlayerSpawn.Models;
+using Alliance.Common.GameModes.Battle;
+using Alliance.Common.GameModes.BattleRoyale;
+using Alliance.Common.GameModes.Captain;
+using Alliance.Common.GameModes.CvC;
+using Alliance.Common.GameModes.PvC;
+using Alliance.Common.GameModes.Siege;
+using Alliance.Common.GameModes.Story;
 using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.DedicatedCustomServer;
 using static Alliance.Common.Utilities.Logger;
 using static TaleWorlds.MountAndBlade.MultiplayerOptions;
+using Alliance.Common.GameModes.Groupfight;
+using Alliance.Common.GameModes.TeamDeathmatch;
+using Alliance.Common.GameModes.Deathmatch;
 
 namespace Alliance.Server.Core
 {
-	/// <summary>
-	/// Start custom game modes. Inspired by mentalrob's ChatCommands.
-	/// </summary>
-	public class GameModeStarter
-	{
-		private static readonly GameModeStarter instance = new GameModeStarter();
-		public static GameModeStarter Instance { get { return instance; } }
+    /// <summary>
+    /// Start custom game modes. Inspired by mentalrob's ChatCommands.
+    /// </summary>
+    public class GameModeStarter
+    {
+        private static readonly GameModeStarter instance = new GameModeStarter();
+        public static GameModeStarter Instance { get { return instance; } }
 
-		public bool MissionIsRunning
-		{
-			get
-			{
-				return Mission.Current != null;
-			}
-		}
-		public bool EndingCurrentMissionThenStartingNewMission;
+        public bool MissionIsRunning
+        {
+            get
+            {
+                return Mission.Current != null;
+            }
+        }
+        public bool EndingCurrentMissionThenStartingNewMission;
 
-		public void SyncMultiplayerOptionsToClients()
-		{
-			GameNetwork.BeginBroadcastModuleEvent();
-			GameNetwork.WriteMessage(new MultiplayerOptionsInitial());
-			GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.IncludeUnsynchronizedClients, null);
-			GameNetwork.BeginBroadcastModuleEvent();
-			GameNetwork.WriteMessage(new MultiplayerOptionsImmediate());
-			GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.IncludeUnsynchronizedClients, null);
-		}
+        public void SyncMultiplayerOptionsToClients()
+        {
+            GameNetwork.BeginBroadcastModuleEvent();
+            GameNetwork.WriteMessage(new MultiplayerOptionsInitial());
+            GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.IncludeUnsynchronizedClients);
+            GameNetwork.BeginBroadcastModuleEvent();
+            GameNetwork.WriteMessage(new MultiplayerOptionsImmediate());
+            GameNetwork.EndBroadcastModuleEvent(GameNetwork.EventBroadcastFlags.IncludeUnsynchronizedClients);
+        }
 
-		public void StartMission(GameModeSettings gameModeSettings)
-		{
-			if (!EndingCurrentMissionThenStartingNewMission)
-			{
-				if (!MissionIsRunning)
-				{
-					StartMissionOnly(gameModeSettings);
-					return;
-				}
-				EndMissionThenStartMission(gameModeSettings);
-			}
-		}
+        public void StartMission(GameModeSettings gameModeSettings)
+        {
+            if (!EndingCurrentMissionThenStartingNewMission)
+            {
+                if (!MissionIsRunning)
+                {
+                    StartMissionOnly(gameModeSettings);
+                    return;
+                }
+                EndMissionThenStartMission(gameModeSettings);
+            }
+        }
 
-		private void EndMissionThenStartMission(GameModeSettings gameModeSettings)
-		{
-			// Try to stop everyone from using objects to prevent crash
-			Log("Scene=" + Mission.Current?.SceneName, LogLevel.Debug);
-			Log("NB Agents=" + Mission.Current?.Agents.Count, LogLevel.Debug);
-			foreach (MissionObject missionObj in Mission.Current?.MissionObjects)
-			{
-				if (missionObj is UsableMachine machine)
-				{
-					Log($"Disabling {machine.GameEntity.Name} - {machine.IsDisabled}", LogLevel.Debug);
-					machine.Disable();
-				}
-			}
-			foreach (Agent agent in Mission.Current?.AllAgents)
-			{
-				agent.SetMortalityState(Agent.MortalityState.Invulnerable);
-				//UsableMissionObject missionObject = agent.CurrentlyUsedGameObject;
-				//if (missionObject != null)
-				//{
-				//    Log("agent using " + missionObject?.GameEntity?.Name, 0, Debug.DebugColor.Blue);
-				//    agent.StopUsingGameObject();
-				//    Log("agent now using " + agent.CurrentlyUsedGameObject?.GameEntity?.Name, 0, Debug.DebugColor.Blue);
-				//    missionObject.SetDisabled();
-				//}
-				//agent.AIStateFlags = Agent.AIStateFlag.Alarmed;
-				//agent.SetScriptedCombatFlags(Agent.AISpecialCombatModeFlags.None);
-				//agent.DisableScriptedMovement();
-				//agent.ClearTargetFrame();
-				//agent.Detachment?.RemoveAgent(agent);
-				Log($"{agent.Name} using {agent.CurrentlyUsedGameObject?.GameEntity.Name} - flag : {agent.AIStateFlags}  | {agent.GetScriptedCombatFlags()}", LogLevel.Debug);
-			}
+        private void EndMissionThenStartMission(GameModeSettings gameModeSettings)
+        {
+            MissionListener missionListener = new MissionListener();
+            missionListener.SetGameModeSettings(gameModeSettings);
+            EndMissionWithListener(missionListener);
+        }
 
-			MissionListener missionListener = new MissionListener();
-			Mission.Current.AddListener(missionListener);
-			MultiplayerIntermissionVotingManager.Instance.IsCultureVoteEnabled = false;
-			MultiplayerIntermissionVotingManager.Instance.IsMapVoteEnabled = false;
-			EndingCurrentMissionThenStartingNewMission = true;
-			missionListener.SetGameModeSettings(gameModeSettings);
-			DedicatedCustomServerSubModule.Instance.ServerSideIntermissionManager.EndMission();
-		}
+        internal void EndMissionWithListener(IMissionListener listener)
+        {
+            PrepareCurrentMissionForEnd();
+            DisableNativeIntermissionVotes();
 
-		public void ApplyGameModeSettings(GameModeSettings gameModeSettings)
-		{
-			ConfigManager.Instance.ApplyNativeOptions(gameModeSettings.TWOptions);
-			ConfigManager.Instance.ApplyModOptions(gameModeSettings.ModOptions);
-			SyncMultiplayerOptionsToClients();
-		}
+            Mission.Current.AddListener(listener);
+            EndingCurrentMissionThenStartingNewMission = true;
+            DedicatedCustomServerSubModule.Instance.ServerSideIntermissionManager.EndMission();
+        }
 
-		public bool StartMissionOnly(GameModeSettings gameModeSettings)
-		{
-			if (!MissionIsRunning)
-			{
-				ApplyGameModeSettings(gameModeSettings);
-				DedicatedCustomServerSubModule.Instance.ServerSideIntermissionManager.StartMission();
-				return true;
-			}
-			return false;
-		}
+        private void PrepareCurrentMissionForEnd()
+        {
+            if (Mission.Current == null)
+            {
+                return;
+            }
 
-		public void StartLobby(string map, string culture1, string culture2, int nbBots = -1)
-		{
-			LobbyGameModeSettings lobby = new LobbyGameModeSettings();
-			lobby.TWOptions[OptionType.Map] = map;
-			lobby.TWOptions[OptionType.CultureTeam1] = culture1;
-			lobby.TWOptions[OptionType.CultureTeam2] = culture2;
-			if (nbBots > -1) lobby.TWOptions[OptionType.NumberOfBotsTeam1] = nbBots;
-			StartMission(lobby);
-		}
+            // Try to stop everyone from using objects to prevent crash
+            Log("Scene=" + Mission.Current.SceneName, LogLevel.Debug);
+            Log("NB Agents=" + Mission.Current.Agents.Count, LogLevel.Debug);
+            foreach (MissionObject missionObj in Mission.Current.MissionObjects)
+            {
+                if (missionObj is UsableMachine machine)
+                {
+                    Log($"Disabling {machine.GameEntity.Name} - {machine.IsDisabled}", LogLevel.Debug);
+                    machine.Disable();
+                }
+            }
 
-		public GameModeStarter()
-		{
-		}
-	}
+            foreach (Agent agent in Mission.Current.AllAgents)
+            {
+                agent.SetMortalityState(Agent.MortalityState.Invulnerable);
+            }
+        }
 
-	public class MissionListener : IMissionListener
-	{
-		public void SetGameModeSettings(GameModeSettings gameModeSettings)
-		{
-			_gameModeSettings = gameModeSettings;
-		}
+        private static void DisableNativeIntermissionVotes()
+        {
+            MultiplayerIntermissionVotingManager votingManager = MultiplayerIntermissionVotingManager.Instance;
+            votingManager.IsCultureVoteEnabled = false;
+            votingManager.IsMapVoteEnabled = false;
+        }
 
-		public void OnEndMission()
-		{
-			new Thread(new ParameterizedThreadStart(StartMissionThread.ThreadProc)).Start(_gameModeSettings);
-			Mission.Current.RemoveListener(this);
-		}
+        public void ApplyGameModeSettings(GameModeSettings gameModeSettings)
+        {
+            PlayerSpawnMenu.Instance.Clear();
+            ConfigManager.Instance.ApplyNativeOptions(gameModeSettings.TWOptions);
+            ConfigManager.Instance.ApplyModOptions(gameModeSettings.ModOptions);
+            SyncMultiplayerOptionsToClients();
+        }
 
-		public void OnInitialDeploymentPlanMade(BattleSideEnum battleSide, bool isFirstPlan)
-		{
-		}
+        public bool StartMissionOnly(GameModeSettings gameModeSettings)
+        {
+            if (gameModeSettings == null)
+            {
+                Log("StartMissionOnly called with null settings.", LogLevel.Error);
+                return false;
+            }
 
-		public void OnMissionModeChange(MissionMode oldMissionMode, bool atStart)
-		{
-		}
+            if (!MissionIsRunning)
+            {
+                ApplyGameModeSettings(gameModeSettings);
+                DedicatedCustomServerSubModule.Instance.ServerSideIntermissionManager.StartMission();
+                return true;
+            }
+            return false;
+        }
 
-		public void OnResetMission()
-		{
-		}
+        public void StartLobby(string map, string culture1, string culture2, int nbBots = -1)
+        {
+            LobbyGameModeSettings lobby = new LobbyGameModeSettings();
+            lobby.TWOptions[OptionType.Map] = map;
+            lobby.TWOptions[OptionType.CultureTeam1] = culture1;
+            lobby.TWOptions[OptionType.CultureTeam2] = culture2;
+            if (nbBots > -1) lobby.TWOptions[OptionType.NumberOfBotsTeam1] = nbBots;
+            StartMission(lobby);
+        }
 
-		public void OnEquipItemsFromSpawnEquipmentBegin(Agent agent, Agent.CreationType creationType)
-		{
-		}
+        /// <summary>
+        /// Starts the configured post-match transition.
+        /// Defaults to Lobby, or runs the configured intermission flow when enabled.
+        /// </summary>
+        public void StartPostMatchTransition()
+        {
+            string map = OptionType.Map.GetStrValue();
+            string culture1 = OptionType.CultureTeam1.GetStrValue();
+            string culture2 = OptionType.CultureTeam2.GetStrValue();
 
-		public void OnEquipItemsFromSpawnEquipment(Agent agent, Agent.CreationType creationType)
-		{
-		}
+            if (EndingCurrentMissionThenStartingNewMission)
+            {
+                return;
+            }
 
-		public void OnConversationCharacterChanged()
-		{
-		}
+            StartLobby(map, culture1, culture2);
+        }
 
-		public void OnDeploymentPlanMade(Team team, bool isFirstPlan)
-		{
-		}
 
-		public MissionListener()
-		{
-		}
+        public GameModeSettings CreateSettingsFromCurrentOptions()
+        {
+            string gameType = OptionType.GameType.GetStrValue();
+            GameModeSettings gameModeSettings;
 
-		private GameModeSettings _gameModeSettings;
-	}
+            switch (gameType)
+            {
+                case "CaptainX": gameModeSettings = new CaptainGameModeSettings(); break;
+                case "BattleX": gameModeSettings = new BattleGameModeSettings(); break;
+                case "SiegeX": gameModeSettings = new SiegeGameModeSettings(); break;
+                case "DeathmatchX": gameModeSettings = new DeathmatchGameModeSettings(); break;
+                case "TeamDeathmatchX": gameModeSettings = new TeamDeathmatchGameModeSettings(); break;
+                case "Groupfighting": gameModeSettings = new GroupfightGameModeSettings (); break;
+                case "Halloween": gameModeSettings = new SiegeGameModeSettings(); break;
+                case "Scenario": gameModeSettings = new ScenarioGameModeSettings(); break;
+                case "PvC": gameModeSettings = new PvCGameModeSettings(); break;
+                case "CvC": gameModeSettings = new CvCGameModeSettings(); break;
+                case "BattleRoyale": gameModeSettings = new BRGameModeSettings(); break;
+                case "Lobby": gameModeSettings = new LobbyGameModeSettings(); break;
+                default:
+                    Log($"Unsupported game type '{gameType}' for loop transition. Falling back to Lobby.", LogLevel.Warning);
+                    gameModeSettings = new LobbyGameModeSettings();
+                    break;
+            }
 
-	internal class StartMissionThread
-	{
-		public static void ThreadProc(object gameModeSettings)
-		{
-			Thread.Sleep(1000);
-			GameModeStarter.Instance.EndingCurrentMissionThenStartingNewMission = false;
-			GameModeStarter.Instance.StartMissionOnly((GameModeSettings)gameModeSettings);
-		}
+            gameModeSettings.TWOptions = ConfigManager.Instance.GetNativeOptionsCopy();
+            gameModeSettings.ModOptions = ConfigManager.Instance.GetModOptionsCopy();
+            return gameModeSettings;
+        }
+    }
 
-		public StartMissionThread()
-		{
-		}
-	}
+    internal class MissionListener : IMissionListener
+    {
+        public void SetGameModeSettings(GameModeSettings gameModeSettings)
+        {
+            _gameModeSettings = gameModeSettings;
+        }
+
+        public void OnEndMission()
+        {
+            new Thread(StartMissionThread.ThreadProc).Start(new StartMissionThread.StartMissionRequest(_gameModeSettings, _useCurrentOptionsForNextMission));
+            Mission.Current.RemoveListener(this);
+        }
+
+        public void OnMissionModeChange(MissionMode oldMissionMode, bool atStart)
+        {
+        }
+
+        public void OnResetMission()
+        {
+        }
+
+        public void OnEquipItemsFromSpawnEquipmentBegin(Agent agent, Agent.CreationType creationType)
+        {
+        }
+
+        public void OnEquipItemsFromSpawnEquipment(Agent agent, Agent.CreationType creationType)
+        {
+        }
+
+        public void OnConversationCharacterChanged()
+        {
+        }
+
+        public void OnDeploymentPlanMade(Team team, bool isFirstPlan)
+        {
+        }
+
+        private GameModeSettings _gameModeSettings;
+        private bool _useCurrentOptionsForNextMission;
+    }
+
+    internal class StartMissionThread
+    {
+        public class StartMissionRequest
+        {
+            public readonly GameModeSettings GameModeSettings;
+            public readonly bool UseCurrentOptionsForNextMission;
+
+            public StartMissionRequest(GameModeSettings gameModeSettings, bool useCurrentOptionsForNextMission)
+            {
+                GameModeSettings = gameModeSettings;
+                UseCurrentOptionsForNextMission = useCurrentOptionsForNextMission;
+            }
+        }
+
+        public static void ThreadProc(object requestObj)
+        {
+            StartMissionRequest request = requestObj as StartMissionRequest;
+            Thread.Sleep(1000);
+            GameModeStarter.Instance.EndingCurrentMissionThenStartingNewMission = false;
+
+            if (request?.UseCurrentOptionsForNextMission == true)
+            {
+                GameModeSettings nextSettings = GameModeStarter.Instance.CreateSettingsFromCurrentOptions();
+                GameModeStarter.Instance.StartMissionOnly(nextSettings);
+                return;
+            }
+
+            GameModeStarter.Instance.StartMissionOnly(request?.GameModeSettings);
+        }
+
+        public StartMissionThread()
+        {
+        }
+    }
 }

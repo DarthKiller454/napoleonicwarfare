@@ -1,0 +1,36 @@
+<Prefab>
+    <Window>
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+            <Children>
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="520" SuggestedHeight="520" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="General\RadialMenu\radial_menu_bg" Color="#00000077" DoNotAcceptEvents="true" />
+
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="24" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="-88" Brush="Order.SelectedOrder.Text" Brush.FontSize="17" Text="@BuildPointsText" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="260" SuggestedHeight="26" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="-61" Brush="Order.SelectedOrder.Text" Brush.FontSize="19" Text="SAPPER BUILDING" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="300" SuggestedHeight="28" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="28" Brush="Order.SelectedOrder.Text" Brush.FontSize="20" Text="@FocusedName" IsVisible="@HasFocusedOption" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="220" SuggestedHeight="22" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="52" Brush="Order.Item.DescriptionText.Radial" Brush.FontSize="14" Text="@FocusedCostText" IsVisible="@HasFocusedOption" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="330" SuggestedHeight="24" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="76" Brush="Order.Item.DescriptionText.Radial" Brush.FontSize="14" Text="Release to build · Cancel closes" DoNotAcceptEvents="true" />
+                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="420" SuggestedHeight="26" HorizontalAlignment="Center" VerticalAlignment="Center" PositionYOffset="100" Brush="Order.Item.DescriptionText.Radial" Brush.FontSize="15" Text="@EmptyMessage" DoNotAcceptEvents="true" />
+
+                <CircleActionSelectorWidget DataSource="{Options}" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="560" SuggestedHeight="560" HorizontalAlignment="Center" VerticalAlignment="Center" DistanceFromCenterModifier="180" DirectionWidget="DirectionWidget">
+                    <ItemTemplate>
+                        <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="155" SuggestedHeight="150" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Children>
+                                <ButtonWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="108" SuggestedHeight="108" HorizontalAlignment="Center" VerticalAlignment="Top" Brush="Mission.Radial.Item.Glow" IsSelected="@IsFocused" UpdateChildrenStates="true" DoNotPassEventsToChildren="true" Command.HoverBegin="Focus" Command.HoverEnd="Unfocus">
+                                    <Children>
+                                        <ImageWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="82" SuggestedHeight="82" HorizontalAlignment="Center" VerticalAlignment="Center" Brush="Mission.Radial.Item.Background" IsSelected="@IsFocused" OverrideDefaultStateSwitchingEnabled="true" />
+                                        <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="74" SuggestedHeight="74" HorizontalAlignment="Center" VerticalAlignment="Center" Brush="Order.SelectedOrder.Text" Brush.FontSize="30" Text="@IconText" DoNotAcceptEvents="true" />
+                                    </Children>
+                                </ButtonWidget>
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="155" SuggestedHeight="24" HorizontalAlignment="Center" VerticalAlignment="Bottom" PositionYOffset="-22" Brush="Order.Item.DescriptionText.Radial" Brush.FontSize="14" Text="@Name" DoNotAcceptEvents="true" />
+                                <TextWidget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="155" SuggestedHeight="20" HorizontalAlignment="Center" VerticalAlignment="Bottom" PositionYOffset="-1" Brush="Order.Item.DescriptionText.Radial" Brush.FontSize="12" Text="@CostText" DoNotAcceptEvents="true" />
+                            </Children>
+                        </Widget>
+                    </ItemTemplate>
+                </CircleActionSelectorWidget>
+
+                <Widget Id="DirectionWidget" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="13" SuggestedHeight="13" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="BlankWhiteCircle" AlphaFactor="0.5" DoNotAcceptEvents="true" />
+                <Widget WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="24" SuggestedHeight="24" HorizontalAlignment="Center" VerticalAlignment="Center" Sprite="StdAssets\arrow_little" Color="#FEC157FF" Rotation="@DirectionRotation" IsVisible="@HasFocusedOption" DoNotAcceptEvents="true" />
+            </Children>
+        </Widget>
+    </Window>
+</Prefab>

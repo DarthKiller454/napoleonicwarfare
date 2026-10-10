@@ -1,4 +1,6 @@
 ﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.Artillery;
+using Alliance.Client.Extensions.Spyglass.Views;
 using System.Collections.Generic;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade;
@@ -20,6 +22,8 @@ namespace Alliance.Client.GameModes.Lobby
 			{
 				// Custom views
 				new AgentStatusView(),
+                new CannonCrosshairMissionView(),
+                new SpyglassView(),
 				
 				// Native views
 				//MultiplayerViewCreator.CreateMissionMultiplayerFFAView(),

@@ -1,0 +1,5 @@
+<Prefab>
+  <Window>
+    <Widget Id="MaskTexture" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Sprite="spyglass_view" IsVisible="@IsVisible" DoNotAcceptEvents="true" />
+  </Window>
+</Prefab>

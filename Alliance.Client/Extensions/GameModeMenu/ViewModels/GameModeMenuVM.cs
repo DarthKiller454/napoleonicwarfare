@@ -66,6 +66,7 @@ namespace Alliance.Client.Extensions.GameModeMenu.ViewModels
                 new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new DeathmatchGameModeSettings()),
                 new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new HalloweenGameModeSettings()),
                 new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new GroupfightGameModeSettings()),
+                new GameModeCardVM(new Action<GameModeCardVM>(OnGameModeSelected), new ScenarioGameModeSettings()),
 
             };
 

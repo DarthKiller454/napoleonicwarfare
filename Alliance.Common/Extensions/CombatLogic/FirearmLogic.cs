@@ -592,7 +592,8 @@ namespace Alliance.Common.Extensions.CombatLogic
         public static void SpawnCraterAt(Vec3 position, Mat3 orientation)
         {
             MatrixFrame frame = new MatrixFrame(orientation, position);
-            MissionObject prefab = Mission.Current?.CreateMissionObjectFromPrefab("cannonball_crater", frame, entity => {});
+            MissionObject prefab = Mission.Current?.CreateMissionObjectFromPrefab("cannonball_crater", frame,
+                false, 0, entity => {});
         }
     }
 

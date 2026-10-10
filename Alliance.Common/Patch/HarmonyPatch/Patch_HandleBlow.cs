@@ -22,7 +22,6 @@ namespace Alliance.Common.Patch.HarmonyPatch
 
                 _patched = true;
 
-                // IMPORTANT: Patch the correct overload with explicit signature matching
                 Harmony.Patch(
                     typeof(DestructableComponent).GetMethod(
                         "OnHit",
@@ -34,11 +33,13 @@ namespace Alliance.Common.Patch.HarmonyPatch
                             typeof(int),
                             typeof(Vec3),
                             typeof(Vec3),
-                            typeof(MissionWeapon).MakeByRefType(), // "in" parameter
+                            typeof(MissionWeapon).MakeByRefType(),
                             typeof(int),
                             typeof(ScriptComponentBehavior),
-                            typeof(bool).MakeByRefType(),  // out
-                            typeof(float).MakeByRefType()  // out
+                            typeof(bool).MakeByRefType(),
+                            typeof(float).MakeByRefType(),
+                            typeof(float).MakeByRefType(),
+                            typeof(float).MakeByRefType()
                         },
                         null
                     ),
@@ -65,9 +66,13 @@ namespace Alliance.Common.Patch.HarmonyPatch
             int affectorWeaponSlotOrMissileIndex,
             ScriptComponentBehavior attackerScriptComponentBehavior,
             ref bool reportDamage,
-            ref float modifiedDamage)
+            ref float modifiedDamage,
+            ref float fireDamage,
+            ref float modifiedFireDamage)
         {
             reportDamage = false;
+            fireDamage = 0;
+            modifiedFireDamage = 0;
             modifiedDamage = (float)inflictedDamage;
 
             WeaponComponentData weaponData = weapon.CurrentUsageItem;

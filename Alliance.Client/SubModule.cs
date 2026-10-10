@@ -3,6 +3,7 @@ using Alliance.Client.Core.Providers;
 using Alliance.Client.Extensions.Bracing.Views;
 using Alliance.Client.Extensions.CustomName;
 using Alliance.Client.Extensions.CustomScripts.Handlers;
+using Alliance.Client.Extensions.ExNativeUI.Artillery;
 using Alliance.Client.Extensions.ExNativeUI.GameLobby;
 using Alliance.Client.Extensions.FakeArmy.Behaviors;
 using Alliance.Client.Extensions.VOIP.Behaviors;
@@ -131,6 +132,7 @@ namespace Alliance.Client
             mission.AddMissionBehavior(new KillfeedMissionLogic());
             mission.AddMissionBehavior(new AllianceAgentVisualSpawnComponent());
             mission.AddMissionBehavior(new SceneSyncBehavior());
+            mission.AddMissionBehavior(new VoiceReplacer());
         }
         protected override void OnApplicationTick(float dt)
         {

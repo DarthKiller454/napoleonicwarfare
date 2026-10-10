@@ -51,7 +51,7 @@ namespace Alliance.Common.Core.Configuration.Models
 
 		public static readonly string[] AvailableSides = new string[] { BattleSideEnum.Defender.ToString(), BattleSideEnum.Attacker.ToString() };
 
-		public static readonly string[] AvailableGameModes = new string[] { "Lobby", "PvC", "CvC", "CaptainX", "BattleX", "SiegeX", "TeamDeathmatchX", "DeathmatchX", "Groupfight", "Halloween"};
+		public static readonly string[] AvailableGameModes = new string[] { "Lobby", "PvC", "CvC", "CaptainX", "BattleX", "SiegeX", "TeamDeathmatchX", "DeathmatchX", "Groupfight", "Halloween", "Scenario"};
 
 		public static readonly string[] AvailableDifficulties = new string[]
 		{

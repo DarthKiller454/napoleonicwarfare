@@ -11,7 +11,6 @@ namespace Alliance.Server.Extensions.FakeArmy.Behaviors
 	public class FakeArmyBehavior : MissionNetwork
 	{
 		private bool isReady = false;
-		private SpawningStrategyBase spawningStrategy;
 		private BattleSideEnum side = BattleSideEnum.None;
 
 		/// <summary>
@@ -44,22 +43,11 @@ namespace Alliance.Server.Extensions.FakeArmy.Behaviors
 				return;
 			};
 
-			var toto = Mission.Current.GetMissionBehavior<ScenarioBehavior>()?.SpawningBehavior?.SpawningStrategy;
-
-			if (toto == null || toto is not SpawningStrategyBase spawningStrategyBase)
-			{
-				Logger.Log("This mission do not contain SpawningStrategyBase behavior. FakeArmy can't be init");
-				return;
-			}
-
-			spawningStrategy = spawningStrategyBase;
 
 			IsReady = true;
 
-			int nbTickets = spawningStrategy.GetRemainingLives(side);
 			this.side = side;
 
-			MaxTicket = nbTickets;
 			PositionToSpawnEmitterForClient = new Vec3(282, 913, 2.13f);
 		}
 
@@ -71,7 +59,7 @@ namespace Alliance.Server.Extensions.FakeArmy.Behaviors
 		/// <param name="side"></param>
 		public int GetCurrentTickets()
 		{
-			return spawningStrategy.GetRemainingLives(side);
+			return 0;
 		}
 	}
 }

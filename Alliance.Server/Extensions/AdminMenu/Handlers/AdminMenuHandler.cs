@@ -6,6 +6,7 @@ using Alliance.Common.Core.Utils;
 using Alliance.Common.Extensions;
 using Alliance.Common.Extensions.AdminMenu.NetworkMessages.FromClient;
 using Alliance.Common.Extensions.AdminMenu.NetworkMessages.FromServer;
+using Alliance.Common.Extensions.CombatLogic;
 using Alliance.Common.Extensions.RTSCamera.Extension;
 using Alliance.Common.GameModes;
 using Alliance.Server.Core;
@@ -176,7 +177,7 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 		{
 			NetworkCommunicator playerSelected = GameNetwork.NetworkPeers.Where(x => x.VirtualPlayer.Id == admin.PlayerSelected).FirstOrDefault();
 
-			if (playerSelected == null) return false;
+            if (playerSelected == null) return false;
 
 			Vec3 tpPosition = peer.ControlledAgent != null ?
 				peer.ControlledAgent.Position :
@@ -186,7 +187,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][TP] Player {playerSelected.UserName} teleported by admin {peer.UserName} to {tpPosition}", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[TP] Player {playerSelected.UserName} teleported by admin {peer.UserName} to {tpPosition}", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"{playerSelected.UserName} was teleported to {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool TeleportAllPlayerToYou(NetworkCommunicator peer)
@@ -201,7 +204,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][TP] All players teleported by admin {peer.UserName} to {tpPosition}", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[TP] All players teleported by admin {peer.UserName} to {tpPosition}", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"All Players teleported to {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool TeleportToPlayer(NetworkCommunicator peer, AdminClient admin)
@@ -242,7 +247,10 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][TP] Admin {peer.UserName} teleported to player {playerSelected.UserName} ({tpPosition})", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[TP] Admin {peer.UserName} teleported to player {playerSelected.UserName} ({tpPosition})", AdminServerLog.ColorList.Success);
-			return true;
+
+            string message = $"{peer.UserName} teleported to {playerSelected.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool HealPlayer(NetworkCommunicator peer, AdminClient admin)
@@ -253,7 +261,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][HEAL] Player : {playerSelected?.UserName} healed by admin {peer.UserName}", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[HEAL] Player {playerSelected?.UserName} healed by {peer.UserName}", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"{playerSelected?.UserName} was healed by {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool Respawn(NetworkCommunicator peer, AdminClient admin)
@@ -266,7 +276,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 				Mission.Current.GetMissionBehavior<RespawnBehavior>().RespawnPlayer(playerSelected);
 				Log($"[AdminPanel][RESPAWN] Player {playerSelected?.UserName} respawn by admin {peer.UserName}", LogLevel.Information);
 				ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESPAWN] Player {playerSelected?.UserName} respawn by {peer.UserName}", AdminServerLog.ColorList.Success);
-				return true;
+                string message = $"{playerSelected?.UserName} was respawned by {peer.UserName}";
+                SendMessageToAll(message);
+                return true;
 
 			}
 			else
@@ -286,15 +298,17 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
             if (missionPeer.Team == Mission.Current.AttackerTeam || missionPeer.Team == Mission.Current.DefenderTeam)
             {
                 Mission.Current.GetMissionBehavior<RespawnBehavior>().RevivePlayer(playerSelected);
-                Log($"[AdminPanel][RESPAWN] Player {playerSelected?.UserName} respawn by admin {peer.UserName}", LogLevel.Information);
-                ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESPAWN] Player {playerSelected?.UserName} respawn by {peer.UserName}", AdminServerLog.ColorList.Success);
+                Log($"[AdminPanel][REVIVE] Player {playerSelected?.UserName} revive by admin {peer.UserName}", LogLevel.Information);
+                ServerAdminMenuMsg.SendMessageToAllAdmins($"[REVIVE] Player {playerSelected?.UserName} respawn by {peer.UserName}", AdminServerLog.ColorList.Success);
+                string message = $"{playerSelected?.UserName} was revived by {peer.UserName}";
+                SendMessageToAll(message);
                 return true;
 
             }
             else
             {
-                Log($"[AdminPanel][RESPAWN] Error while respawning, player {playerSelected?.UserName} doesn't belong to a team", LogLevel.Information);
-                ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESPAWN] Error while respawning, player {playerSelected?.UserName} doesn't belong to a team", AdminServerLog.ColorList.Danger);
+                Log($"[AdminPanel][REVIVE] Error while reviving, player {playerSelected?.UserName} doesn't belong to a team", LogLevel.Information);
+                ServerAdminMenuMsg.SendMessageToAllAdmins($"[REVIVE] Error while reviving, player {playerSelected?.UserName} doesn't belong to a team", AdminServerLog.ColorList.Danger);
                 return false;
             }
 
@@ -308,7 +322,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][HEAL] All players healed by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[HEAL] All players healed by admin {peer.UserName}.", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"All players were healed by admin {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool GodMod(NetworkCommunicator peer, AdminClient admin)
@@ -319,8 +335,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][GODMODE] Player {playerSelected.UserName} set to GODMODE by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[GODMODE] Player {playerSelected.UserName} set to GODMODE by admin {peer.UserName}", AdminServerLog.ColorList.Success);
-
-			return true;
+            string message = $"Player {playerSelected.UserName} set to GODMODE by admin {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
         }
 
         public bool Reset(NetworkCommunicator peer)
@@ -342,10 +359,13 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 			ResetScoreboardHeaderValues(mission);
             ResetRoundControllerBasic(mission);
             ResetRoundTimerToMax(mission);
+			mission.GetMissionBehavior<PrefabPlacementMissionLogic>()?.ResetSapperBuildingPointsToAssignedValue();
 			
 
             Log($"[AdminPanel][RESET] Mission Reset by admin {peer.UserName}.", LogLevel.Information);
             ServerAdminMenuMsg.SendMessageToAllAdmins($"[RESET] by {peer.UserName}.", AdminServerLog.ColorList.Success);
+			string message = $"The Mission was Reset by {peer.UserName}";
+            SendMessageToAll(message);
             return true;
         }
         private static readonly BindingFlags Flags =
@@ -487,11 +507,11 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
         }
 
         private static void ResetBotScoreboardValues(
-    MissionScoreboardComponent scoreboard,
-    bool resetKills,
-    bool resetDeaths,
-    bool resetAssists,
-    bool resetScore)
+							MissionScoreboardComponent scoreboard,
+							bool resetKills,
+							bool resetDeaths,
+							bool resetAssists,
+							bool resetScore)
         {
             if (scoreboard.Sides == null)
                 return;
@@ -617,8 +637,11 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][GODMODE] All players set to GODMODE by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[Serveur][GODMODE] All players set to GODMODE by admin {peer.UserName}.", AdminServerLog.ColorList.Success);
+            InformationManager.DisplayMessage(new InformationMessage($"[GODMODE] All players set to GODMODE by {peer.UserName}"));
 
-			return true;
+            string message = $"All players set to GODMODE by {peer.UserName}";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool KillPlayers(NetworkCommunicator peer)
@@ -629,7 +652,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][KILL] All players killed by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[KILL] All players killed by admin {peer.UserName}.", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"{peer.UserName} has slain all players!";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool KillBots(NetworkCommunicator peer)
@@ -638,7 +663,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 
 			Log($"[AdminPanel][KILL] All bots killed by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[KILL] All bots killed by admin {peer.UserName}.", AdminServerLog.ColorList.Success);
-			return true;
+            string message = $"{peer.UserName} has slain all bots!";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool Kill(NetworkCommunicator peer, AdminClient admin)
@@ -652,7 +679,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 			Log($"[AdminPanel][KILL] Player {playerSelected.UserName} killed by admin {peer.UserName}.", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[KILL] Player {playerSelected.UserName} killed by admin {peer.UserName}", AdminServerLog.ColorList.Success);
 
-			return true;
+            string message = $"{peer.UserName} has slain {playerSelected.UserName}!";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool SendWarningToPlayer(NetworkCommunicator peer, AdminClient admin)
@@ -686,7 +715,9 @@ namespace Alliance.Server.Extensions.AdminMenu.Handlers
 			Log($"[AdminPanel][KICK] Player {playerSelected.UserName} kicked by admin {peer.UserName}", LogLevel.Information);
 			ServerAdminMenuMsg.SendMessageToAllAdmins($"[KICK] Player {playerSelected.UserName} kicked by admin {peer.UserName}", AdminServerLog.ColorList.Success);
 
-			return true;
+            string message = $"{peer.UserName} has kicked {playerSelected.UserName} from the server!";
+            SendMessageToAll(message);
+            return true;
 		}
 
 		public bool Ban(NetworkCommunicator peer, AdminClient admin)
@@ -737,9 +768,12 @@ File creation date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
 				string notificationMessage = $"[BAN] {playerName} banned by {peer.UserName}. Reason : {admin.BanReason}";
 				Log("[AdminPanel]" + notificationMessage, LogLevel.Information);
 
-				ServerAdminMenuMsg.SendMessageToAllAdmins(notificationMessage, AdminServerLog.ColorList.Success);
+                ServerAdminMenuMsg.SendMessageToAllAdmins(notificationMessage, AdminServerLog.ColorList.Success);
 
-				return true;
+
+                string message = $"{peer.UserName} has banned {playerSelected.UserName} from the server!";
+                SendMessageToAll(message);
+                return true;
 			}
 			catch (Exception ex)
 			{

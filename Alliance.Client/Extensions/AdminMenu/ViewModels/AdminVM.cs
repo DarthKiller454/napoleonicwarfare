@@ -479,9 +479,6 @@ namespace Alliance.Client.Extensions.AdminMenu.ViewModels
 			ShowOptionsTab = true;
 		}
 
-		/// <summary>
-		/// Filter list of players with given text filter
-		/// </summary>
 		public void FilterPlayers(string filterText)
 		{
 			foreach (NetworkPeerVM networkPeerVM in _networkCommunicators)
@@ -647,7 +644,6 @@ namespace Alliance.Client.Extensions.AdminMenu.ViewModels
         [UsedImplicitly]
         public void Reset()
         {
-            if (_selectedPeer == null) { return; }
             ClientAdminMenuMsg.SendMessageToServer(new AdminClient() { Reset = true, PlayerSelected = PlayerId.Empty });
         }
 

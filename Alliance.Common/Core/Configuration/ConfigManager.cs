@@ -139,47 +139,76 @@ namespace Alliance.Common.Core.Configuration
 			return nativeOptions;
 		}
 
-		/// <summary>
-		/// Apply given list of native options.
-		/// </summary>
-		public void ApplyNativeOptions(TWConfig optionList)
-		{
-			if (optionList == null)
-			{
-				Log("Tried to apply empty native options, skipping...", LogLevel.Warning);
-				return;
-			}
-			for (OptionType optionType = OptionType.ServerName; optionType < OptionType.NumOfSlots; optionType++)
-			{
-				MultiplayerOptionsProperty optionProperty = optionType.GetOptionProperty();
-				switch (optionProperty.OptionValueType)
-				{
-					case OptionValueType.Bool:
-						{
-							optionType.SetValue((bool)optionList[optionType], MultiplayerOptionsAccessMode.CurrentMapOptions);
-							break;
-						}
-					case OptionValueType.Integer:
-					case OptionValueType.Enum:
-						{
-							optionType.SetValue((int)optionList[optionType], MultiplayerOptionsAccessMode.CurrentMapOptions);
-							break;
-						}
-					case OptionValueType.String:
-						{
-							optionType.SetValue((string)optionList[optionType], MultiplayerOptionsAccessMode.CurrentMapOptions);
-							break;
-						}
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-			}
-		}
+        /// <summary>
+        /// Apply given list of native options.
+        /// </summary>
+        public void ApplyNativeOptions(TWConfig optionList)
+        {
+            if (optionList == null)
+            {
+                Log("Tried to apply empty native options, skipping...", LogLevel.Warning);
+                return;
+            }
+            for (OptionType optionType = OptionType.ServerName; optionType < OptionType.NumOfSlots; optionType++)
+            {
+                ApplyNativeOption(optionType, optionList[optionType]);
+            }
+        }
 
-		/// <summary>
-		/// Retrieve a copy of current config.
-		/// </summary>
-		public Config GetModOptionsCopy()
+        /// <summary>
+        /// Apply a single native option if its value has changed.
+        /// </summary>
+        public void ApplyNativeOption(OptionType optionType, object newValue)
+        {
+            MultiplayerOptionsProperty optionProperty = optionType.GetOptionProperty();
+            object currentValue = TWConfig.GetCurrentServerValue(optionType);
+
+            // Skip if value hasn't changed
+            if (AreValuesEqual(currentValue, newValue, optionProperty.OptionValueType))
+            {
+                return;
+            }
+
+            // Apply the new value based on type
+            SetOptionValue(optionType, newValue, optionProperty.OptionValueType);
+
+            // Log the change
+            Log($"Updated native option {optionType}: {currentValue} -> {newValue}", LogLevel.Debug);
+        }
+
+        private static bool AreValuesEqual(object current, object newValue, OptionValueType valueType)
+        {
+            return valueType switch
+            {
+                OptionValueType.Bool => (bool)current == (bool)newValue,
+                OptionValueType.Integer or OptionValueType.Enum => (int)current == (int)newValue,
+                OptionValueType.String => (string)current == (string)newValue,
+                _ => throw new ArgumentOutOfRangeException(nameof(valueType))
+            };
+        }
+        private static void SetOptionValue(OptionType optionType, object value, OptionValueType valueType)
+        {
+            switch (valueType)
+            {
+                case OptionValueType.Bool:
+                    optionType.SetValue((bool)value);
+                    break;
+                case OptionValueType.Integer:
+                case OptionValueType.Enum:
+                    optionType.SetValue((int)value);
+                    break;
+                case OptionValueType.String:
+                    optionType.SetValue((string)value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(valueType));
+            }
+        }
+
+        /// <summary>
+        /// Retrieve a copy of current config.
+        /// </summary>
+        public Config GetModOptionsCopy()
 		{
 			Config configCopy = new();
 			foreach (KeyValuePair<int, FieldInfo> field in ConfigFields)

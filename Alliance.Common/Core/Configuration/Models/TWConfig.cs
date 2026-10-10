@@ -115,10 +115,23 @@ namespace Alliance.Common.Core.Configuration.Models
 			set => SetBoundedOption(option, value);
 		}
 
-		/// <summary>
-		/// Ensure the value is within the bounds of the option.
-		/// </summary>
-		private void SetBoundedOption(OptionType option, object value)
+        /// <summary>
+        /// Ensure the value is within the bounds of the option.
+        /// </summary>
+        /// 
+        public static CompressionInfo.Integer? GetCustomCompressionInfo(OptionType optionType)
+        {
+            return optionType switch
+            {
+                OptionType.MaxNumberOfPlayers => CompressionBasic.MaxNumberOfPlayersCompressionInfo,
+                OptionType.RoundTimeLimit => CompressionMission.RoundTimeCompressionInfo,
+                OptionType.MapTimeLimit => CompressionBasic.MapTimeLimitCompressionInfo,
+                OptionType.NumberOfBotsPerFormation => CompressionBasic.NumberOfBotsPerFormationCompressionInfo,
+                OptionType.WarmupTimeLimitInSeconds => CompressionBasic.WarmupTimeLimitCompressionInfo,
+                _ => null
+            };
+        }
+        private void SetBoundedOption(OptionType option, object value)
 		{
 			if (option.GetOptionProperty().HasBounds)
 			{
@@ -185,9 +198,20 @@ namespace Alliance.Common.Core.Configuration.Models
 				}
 			}
 			return value;
-		}
+        }
+        public static object GetCurrentServerValue(OptionType key)
+        {
+            return key.GetOptionProperty().OptionValueType switch
+            {
+                OptionValueType.Bool => key.GetBoolValue(),
+                OptionValueType.Integer => key.GetIntValue(),
+                OptionValueType.Enum => key.GetIntValue(),
+                OptionValueType.String => key.GetStrValue(),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
 
-		private object GetDefaultValue(OptionType key)
+        private object GetDefaultValue(OptionType key)
 		{
 			Log($"No value set for option {key}, using server value : {key.GetValueText()}", LogLevel.Debug);
 			return key.GetOptionProperty().OptionValueType switch

@@ -1,0 +1,107 @@
+<Module>
+	<Name value="Napoleonic Warfare MP"/>
+	<Id value="Napoleonic Warfare MP"/>
+	<Version value="v1.2.41"/>
+	<DefaultModule value="false"/>
+	<ModuleCategory value="Multiplayer"/>
+	<Official value="false"/>
+	<DependedModules>
+		<DependedModule Id="Native"/>
+	</DependedModules>
+	<SubModules>
+		<SubModule>
+			<Name value="XMLMeleePatch"/>
+			<DLLName value="XMLMeleePatch.dll"/>
+			<Assemblies>
+				<Assembly value="0Harmony.dll"/>
+			</Assemblies>
+			<SubModuleClassType value="XMLMeleePatch.XMLMeleeSubModule"/>
+			<Tags/>
+		</SubModule>
+		<SubModule>
+			<Name value="Alliance"/>
+			<DLLName value="Alliance.Common.dll"/>
+			<SubModuleClassType value="Alliance.Common.SubModule"/>
+			<Tags/>
+		</SubModule>
+		<SubModule>
+			<Name value="Alliance"/>
+			<DLLName value="Alliance.Server.dll"/>
+			<SubModuleClassType value="Alliance.Server.SubModule"/>
+			<Tags/>
+		</SubModule>
+	</SubModules>
+	<Xmls>
+		<XmlNode>
+			<XmlName id="GameText"
+			         path="module_strings"/>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="GameText"
+			         path="language"/>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="CharactersExtended"
+			         path="CharactersExtended"/>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="BasicCultures"
+			         path="mpcultures"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="MPClassDivisions"
+			         path="mpclassdivisions"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="Items"
+			         path="mpitems"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<!--> NAPOLEONIC STUFF <!-->
+		<XmlNode>
+			<XmlName id="Items"
+			         path="napoleonic_items"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="MPClassDivisions"
+			         path="napoleonic_mpclassdivisions"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="MPCharacters"
+			         path="napoleonic_mpcharacters"/>
+			<IncludedGameTypes>
+				<GameType value="MultiplayerGame"/>
+			</IncludedGameTypes>
+		</XmlNode>
+		<XmlNode>
+			<XmlName id="ItemsExtended"
+			         path="ItemsExtended/Native"/>
+		</XmlNode>           
+		<XmlNode>                
+			<XmlName id="Monsters" path="monsters" />
+		</XmlNode> 
+		<XmlNode>                
+			<XmlName id="CraftingPieces" path="crafting_pieces" />
+		</XmlNode>               
+		<XmlNode>                
+			<XmlName id="WeaponDescriptions" path="weapon_descriptions" />
+		</XmlNode>               
+		<XmlNode>                
+			<XmlName id="CraftingTemplates" path="crafting_templates" />
+		</XmlNode>          
+	</Xmls>
+</Module>

@@ -1,4 +1,6 @@
-﻿using Alliance.Client.Extensions.FormationEnforcer.Views;
+﻿using Alliance.Client.Extensions.ExNativeUI.Artillery;
+using Alliance.Client.Extensions.FormationEnforcer.Views;
+using Alliance.Client.Extensions.Spyglass.Views;
 using System.Collections.Generic;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.Multiplayer.View.MissionViews;
@@ -42,7 +44,9 @@ namespace Alliance.Client.GameModes.CaptainX
                 ViewCreator.CreateMissionMainAgentEquipDropView(mission),
                 ViewCreator.CreateMissionBoundaryCrossingView(),
                 new MissionBoundaryWallView(),
-                new SpectatorCameraView()
+                new SpectatorCameraView(),
+                new CannonCrosshairMissionView(),
+                new SpyglassView()
             };
 
             return missionViews.ToArray();

@@ -232,7 +232,7 @@ namespace PersistentEmpiresLib.SceneScripts
         }
 
 
-        protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage)
+        protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage, out float fireDamage, out float modifiedFireDamage)
         {
             reportDamage = true;
             WeaponComponentData currentUsageItem = weapon.CurrentUsageItem;
@@ -245,6 +245,8 @@ namespace PersistentEmpiresLib.SceneScripts
             if (impactDirection == null)
                 impactDirection = Vec3.Zero;
             this.SetHitPoint(this.HitPoint - damage, impactDirection);
+            fireDamage = 0f;
+            modifiedFireDamage = 0f;
             finalDamage = (float)damage;
             return false;
         }

@@ -24,14 +24,14 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
         private const int MaxSpawnBatch = 1;                 // spawn at most this many in a single tick loop
         private const float WaveActiveDurationMin = 1f;      // how long a wave stays active (seconds) minimum
         private const float WaveActiveDurationMax = 10f;     // max active duration
-        private const float WaveInactiveDurationMin = 45f;   // how long between waves (seconds) min
-        private const float WaveInactiveDurationMax = 120f;  // max inactive time between waves
+        private const float WaveInactiveDurationMin = 90f;   // how long between waves (seconds) min
+        private const float WaveInactiveDurationMax = 180f;  // max inactive time between waves
         private const int MinDefenderBotsPerWave = 50;       // minimum bots to spawn per wave
         private float _chargeTimer = 0f;                     // timer to throttle charge commands
-        private const float ChargeCooldown = 10f;            // seconds between charge orders
+        private const float ChargeCooldown = 15f;            // seconds between charge orders
         private const float DefenderGrowthMultiplier = 4.0f; // how quickly defenders scale with attackers
         private const float DefenderGrowthExponent = 0.85f;  // exponent for scaling defenders
-        private float _startTimer = 300f;                    // initial delay before first wave (currently 5 minutes)
+        private float _startTimer = 90f;                    // initial delay before first wave (currently 5 minutes)
         private const float AssistBlend = 0.75f;             // blending weight towards desired defenders from attacker count
 
         private bool _spawnerActive;
@@ -39,12 +39,12 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
 
         private static readonly (int attackers, int defenders)[] DefenderAnchors = new (int, int)[]
         {
-            (1, 50),
-            (2, 50),
-            (10, 60),
-            (30, 100),
-            (100, 300),
-            (200, 500)
+            (1, 20),
+            (2, 27),
+            (10, 76),
+            (30, 130),
+            (100, 350),
+            (200, 600)
         }; 
         private readonly WeightedTroop[] _weightedTroops = new WeightedTroop[]
 {
@@ -59,7 +59,7 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
         {
             TroopId = "mp_napoleonic_suisse_heavy_troop",
             BaseWeight = 0f,              // 0% for first 5 minutes
-            WeightIncreasePerMinute = 5f, // 5% per minute after 5 minutes
+            WeightIncreasePerMinute = 1f, // 1% per minute after 5 minutes
             MaxWeight = 100f
         }
 };
@@ -131,6 +131,14 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
             int target = (int)Math.Round(Math.Min(Math.Max(blended, MinDefenderBotsPerWave), GlobalHardCap));
             return target;
         }
+        private int ComputeTargetDefenders(int alivePlayerAttackers, int aliveBotAttackers)
+        {
+            int playerBasedTarget = ComputeTargetDefenders(alivePlayerAttackers);
+
+            int target = playerBasedTarget + Math.Max(0, aliveBotAttackers);
+
+            return Math.Min(target, GlobalHardCap);
+        }
 
         private float InterpolateAnchors(int n)
         {
@@ -192,48 +200,60 @@ namespace Alliance.Server.GameModes.Halloween.Behaviors
                 return heavyTroop.TroopId;
         }
         private void TryMaintainDefenderBots()
-{
-    try
-    {
-        // Count alive agents in both teams
-        int aliveAttackers = 0;
-        int aliveDefenders = 0;
-        List<Agent> agents = Mission.Current.Agents.ToList();
-
-        foreach (Agent agent in agents)
         {
-            if (agent != null && agent.IsActive())
+            try
             {
-                if (agent.Team == Mission.AttackerTeam)
-                    aliveAttackers++;
-                else if (agent.Team == Mission.DefenderTeam)
-                    aliveDefenders++;
+                int alivePlayerAttackers = 0;
+                int aliveBotAttackers = 0;
+                int aliveDefenders = 0;
+
+                List<Agent> agents = Mission.Current.Agents.ToList();
+
+                foreach (Agent agent in agents)
+                {
+                    if (agent == null || !agent.IsActive())
+                        continue;
+
+                    if (agent.Team == Mission.AttackerTeam)
+                    {
+                        if (agent.IsPlayerControlled || agent.MissionPeer != null)
+                        {
+                            alivePlayerAttackers++;
+                        }
+                        else
+                        {
+                            // Attacker bots only count as +1 defender each.
+                            aliveBotAttackers++;
+                        }
+                    }
+                    else if (agent.Team == Mission.DefenderTeam)
+                    {
+                        aliveDefenders++;
+                    }
+                }
+
+                CleanupSpawnedList();
+
+                int maxAllowedDefenders = ComputeTargetDefenders(alivePlayerAttackers, aliveBotAttackers);
+
+                int toSpawn = maxAllowedDefenders - aliveDefenders;
+                if (toSpawn <= 0)
+                    return;
+
+                int globalAlive = CountAllAliveEntities();
+                int allowedGlobalSpawn = Math.Max(0, GlobalHardCap - globalAlive);
+                toSpawn = Math.Min(toSpawn, allowedGlobalSpawn);
+
+                int batch = Math.Min(toSpawn, MaxSpawnBatch);
+
+                for (int i = 0; i < batch; ++i)
+                    SpawnOneBotForTeam(Mission.DefenderTeam);
+            }
+            catch (Exception e)
+            {
+                InformationManager.DisplayMessage(new InformationMessage($"HalloweenBotController spawn error: {e.Message}"));
             }
         }
-        CleanupSpawnedList();
-        int spawnedBotsCount = _spawnedBots.Count;
-
-        int maxAllowedDefenders = ComputeTargetDefenders(aliveAttackers);
-
-        // Compute how many more we can spawn right now
-        int toSpawn = maxAllowedDefenders - aliveDefenders;
-        if (toSpawn <= 0)
-            return;
-
-        // Respect the global hard cap
-        int globalAlive = CountAllAliveEntities();
-        int allowedGlobalSpawn = Math.Max(0, GlobalHardCap - globalAlive);
-        toSpawn = Math.Min(toSpawn, allowedGlobalSpawn);
-
-        int batch = Math.Min(toSpawn, MaxSpawnBatch);
-        for (int i = 0; i < batch; ++i)
-            SpawnOneBotForTeam(Mission.DefenderTeam);
-    }
-    catch (Exception e)
-    {
-        InformationManager.DisplayMessage(new InformationMessage($"HalloweenBotController spawn error: {e.Message}"));
-    }
-}
 
         private void SpawnOneBotForTeam(Team team)
         {

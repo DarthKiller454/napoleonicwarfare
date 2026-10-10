@@ -7,6 +7,9 @@ namespace Alliance.Common.Core.Configuration.Models
 	[Serializable]
 	public class DefaultConfig
 	{
+		[ConfigProperty(true, "Sapper building points", "Build point budget assigned to each team at the start of a map and each round.", 0, 100000)]
+		public int SapperBuildingPoints = 100;
+
 		[ConfigProperty(false, "Synchronize configuration", "Synchronize server configuration with the clients.")]
 		public bool SyncConfig = true;
 

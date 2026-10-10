@@ -72,6 +72,11 @@ namespace Alliance.Common.Extensions.PE
             GameNetwork.NetworkMessageHandlerRegisterer networkMessageHandlerRegisterer = new GameNetwork.NetworkMessageHandlerRegisterer(mode);
             if (GameNetwork.IsClient)
             {
+                networkMessageHandlerRegisterer.Register<SyncAttachToAgent>(
+                    this.HandleSyncAttachToAgentFromServer);
+
+                networkMessageHandlerRegisterer.Register<SyncDetachFromAgent>(
+                    this.HandleSyncDetachFromAgentFromServer);
             }
             else
             {
@@ -90,7 +95,13 @@ namespace Alliance.Common.Extensions.PE
                 networkMessageHandlerRegisterer.Register<StopTurningRightMoveableMachine>(this.HandleFromClientStopTurningRightMoveableMachine);
             }
         }
+        private void HandleSyncDetachFromAgentFromServer(SyncDetachFromAgent message)
+        {
+            if (message.AttachToAgent == null)
+                return;
 
+            message.AttachToAgent.SetDetachedFromServer(message.FinalFrame);
+        }
         private void HandleSyncAttachToAgentFromServer(SyncAttachToAgent message)
         {
             message.AttachToAgent.SetAttachedAgent(message.UserAgent);

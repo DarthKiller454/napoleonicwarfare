@@ -1,7 +1,9 @@
 ﻿using Alliance.Client.Extensions.ExNativeUI.AgentStatus.Views;
+using Alliance.Client.Extensions.ExNativeUI.Artillery;
 using Alliance.Client.Extensions.ExNativeUI.HUDExtension.Views;
 using Alliance.Client.Extensions.ExNativeUI.MainAgentEquipmentController.MissionViews;
 using Alliance.Client.Extensions.FormationEnforcer.Views;
+using Alliance.Client.Extensions.Spyglass.Views;
 using Alliance.Common.Extensions.PlayerSpawn.Views;
 using System.Collections.Generic;
 using TaleWorlds.MountAndBlade;
@@ -36,7 +38,6 @@ namespace Alliance.Client.GameModes.SiegeX
                 MultiplayerViewCreator.CreateMultiplayerTeamSelectUIHandler(),
                 MultiplayerViewCreator.CreateMissionScoreBoardUIHandler(mission, false),
                 MultiplayerViewCreator.CreateMultiplayerEndOfRoundUIHandler(),
-                MultiplayerViewCreator.CreateMultiplayerEndOfBattleUIHandler(),
                 MultiplayerViewCreator.CreateLobbyEquipmentUIHandler(),
                 MultiplayerViewCreator.CreatePollProgressUIHandler(),
                 MultiplayerViewCreator.CreateMissionFlagMarkerUIHandler(),
@@ -47,7 +48,9 @@ namespace Alliance.Client.GameModes.SiegeX
                 ViewCreator.CreateMissionBoundaryCrossingView(),
                 new MissionBoundaryWallView(),
                 new MissionItemContourControllerView(),
-                new MissionAgentContourControllerView()
+                new MissionAgentContourControllerView(),
+                new CannonCrosshairMissionView(),
+                new SpyglassView()
             };
 
             return missionViews.ToArray();

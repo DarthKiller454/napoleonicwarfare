@@ -8,6 +8,10 @@ using Alliance.Common.GameModes.PvC;
 using Alliance.Common.GameModes.Siege;
 using Alliance.Common.GameModes.Story;
 using Alliance.Common.GameModes.Story.Actions;
+using Alliance.Common.GameModes.TeamDeathmatch;
+using Alliance.Common.GameModes.Deathmatch;
+using Alliance.Common.GameModes.Halloween;
+using Alliance.Common.GameModes.Groupfight;
 using Alliance.Server.Core;
 using TaleWorlds.MountAndBlade;
 using static Alliance.Common.Utilities.Logger;
@@ -42,7 +46,11 @@ namespace Alliance.Server.GameModes.Story.Actions
 				case "CvC": gameModeSettings = new CvCGameModeSettings(); break;
 				case "BattleRoyale": gameModeSettings = new BRGameModeSettings(); break;
 				case "Lobby": gameModeSettings = new LobbyGameModeSettings(); break;
-				default: gameModeSettings = new LobbyGameModeSettings(); break;
+                case "TeamDeathmatchX": gameModeSettings = new TeamDeathmatchGameModeSettings(); break;
+                case "Deathmatch": gameModeSettings = new DeathmatchGameModeSettings(); break;
+                case "Groupfight": gameModeSettings = new GroupfightGameModeSettings(); break;
+                case "Halloween": gameModeSettings = new HalloweenGameModeSettings(); break;
+                default: gameModeSettings = new LobbyGameModeSettings(); break;
 			}
 
 			gameModeSettings.TWOptions = Settings.TWOptions;

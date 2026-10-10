@@ -1,4 +1,6 @@
 ﻿using Alliance.Client.Extensions.AgentsCount.Views;
+using Alliance.Client.Extensions.ExNativeUI.Artillery;
+using Alliance.Client.Extensions.Spyglass.Views;
 using System.Collections.Generic;
 using TaleWorlds.MountAndBlade;
 using TaleWorlds.MountAndBlade.Multiplayer.View.MissionViews;
@@ -31,7 +33,9 @@ namespace Alliance.Client.GameModes.BattleRoyale
                 ViewCreator.CreateOptionsUIHandler(),
                 ViewCreator.CreateMissionMainAgentEquipDropView(mission),
                 ViewCreator.CreateMissionBoundaryCrossingView(),
-                new MissionBoundaryWallView()
+                new MissionBoundaryWallView(),
+                new CannonCrosshairMissionView(),
+                new SpyglassView()
             };
             return missionViews.ToArray();
         }

@@ -127,7 +127,7 @@ namespace Alliance.Common.Extensions.PE
             MatrixFrame globalFrame = SpawningPoint.GetGlobalFrame();
             Vec3 o = new Vec3(globalFrame.origin.X + spawnableItem.AdjustPositionX, globalFrame.origin.Y + spawnableItem.AdjustPositionY, globalFrame.origin.Z + spawnableItem.AdjustPositionZ, -1f);
             MatrixFrame frame = new MatrixFrame(globalFrame.rotation, o);
-            MissionObject missionObject = Mission.Current.CreateMissionObjectFromPrefab(spawnableItem.PrefabName, frame, null);
+            MissionObject missionObject = Mission.Current.CreateMissionObjectFromPrefab(spawnableItem.PrefabName, frame, false, 0, null);
             SpawnedPrefabs.Add(missionObject.GameEntity);
             List<WeakGameEntity> list = new List<WeakGameEntity>();
             ScriptComponentBehavior[] array = (from s in missionObject.GameEntity.GetScriptComponents()

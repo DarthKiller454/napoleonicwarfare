@@ -1175,65 +1175,94 @@ namespace Alliance.Common.Extensions.Artillery
         }
 
 
-        protected override bool OnHit(Agent attackerAgent, int damage, Vec3 impactPosition, Vec3 impactDirection, in MissionWeapon weapon, int affectorWeaponSlotOrMissileIndex, ScriptComponentBehavior attackerScriptComponentBehavior, out bool reportDamage, out float finalDamage)
+        protected override bool OnHit(
+    Agent attackerAgent,
+    int inflictedDamage,
+    Vec3 impactPosition,
+    Vec3 impactDirection,
+    in MissionWeapon weapon,
+    int affectorWeaponSlotOrMissileIndex,
+    ScriptComponentBehavior attackerScriptComponentBehavior,
+    out bool reportDamage,
+    out float modifiedDamage,
+    out float fireDamage,
+    out float modifiedFireDamage)
         {
             reportDamage = true;
+
+            int damage = inflictedDamage;
+
+            fireDamage = 0f;
+            modifiedFireDamage = 0f;
+
             MissionWeapon missionWeapon = weapon;
             WeaponComponentData currentUsageItem = missionWeapon.CurrentUsageItem;
+
+            string itemId = weapon.Item != null ? weapon.Item.StringId : null;
+
             if (currentUsageItem != null)
             {
-                if (weapon.Item.StringId == "nwf_artillery_ramrod" && State != WeaponState.WaitingBeforeIdle)
+                if (itemId == "nwf_artillery_ramrod" && State != WeaponState.WaitingBeforeIdle)
                 {
                     reportDamage = false;
                     damage = 0;
-                    if (attackerAgent.IsPlayerControlled)
+
+                    if (attackerAgent != null && attackerAgent.IsPlayerControlled && attackerAgent.MissionPeer != null)
                     {
                         NetworkCommunicator peer = attackerAgent.MissionPeer.GetNetworkPeer();
-                        string message = $"Cannon is currently not reloaded or needing a Ramrod";
-                        SendMessageToPeer(message, peer);
+                        SendMessageToPeer("Cannon is currently not reloaded or needing a Ramrod", peer);
                     }
                 }
-                if (weapon.Item.StringId == "nwf_artillery_ramrod" && State == WeaponState.WaitingBeforeIdle && _timeElapsedAfterLoading < 1f)
+                else if (itemId == "nwf_artillery_ramrod" &&
+                         State == WeaponState.WaitingBeforeIdle &&
+                         _timeElapsedAfterLoading < 1f)
                 {
                     reportDamage = false;
                     damage = 0;
-                    if (attackerAgent.IsPlayerControlled)
+
+                    if (attackerAgent != null && attackerAgent.IsPlayerControlled && attackerAgent.MissionPeer != null)
                     {
                         NetworkCommunicator peer = attackerAgent.MissionPeer.GetNetworkPeer();
-                        string message = $"Please Wait a moment before striking again";
-                        SendMessageToPeer(message, peer);
+                        SendMessageToPeer("Please Wait a moment before striking again", peer);
                     }
                 }
-                if (weapon.Item.StringId == "nwf_artillery_ramrod" && State == WeaponState.WaitingBeforeIdle && _timeElapsedAfterLoading >= 1f)
+                else if (itemId == "nwf_artillery_ramrod" &&
+                         State == WeaponState.WaitingBeforeIdle &&
+                         _timeElapsedAfterLoading >= 1f)
                 {
                     reportDamage = false;
                     damage = 0;
+
                     _ramrodhittime++;
-                    this._timeElapsedAfterLoading = 0f;
-                    if(attackerAgent.IsPlayerControlled)
+                    _timeElapsedAfterLoading = 0f;
+
+                    if (attackerAgent != null && attackerAgent.IsPlayerControlled && attackerAgent.MissionPeer != null)
                     {
                         NetworkCommunicator peer = attackerAgent.MissionPeer.GetNetworkPeer();
-                        string message = $"Ramrod hits: {_ramrodhittime}/{_ramrodhitlimit}";
-                        SendMessageToPeer(message, peer);
+                        SendMessageToPeer($"Ramrod hits: {_ramrodhittime}/{_ramrodhitlimit}", peer);
                     }
                 }
-
-
             }
-            if (currentUsageItem == null || (currentUsageItem.WeaponClass != WeaponClass.Stone && currentUsageItem.WeaponClass != WeaponClass.Boulder) || !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
+
+            if (currentUsageItem == null ||
+                (currentUsageItem.WeaponClass != WeaponClass.Stone &&
+                 currentUsageItem.WeaponClass != WeaponClass.Boulder) ||
+                !currentUsageItem.WeaponFlags.HasAnyFlag(WeaponFlags.NotUsableWithOneHand))
             {
                 reportDamage = false;
                 damage = 0;
             }
-            if (this.DestroyedByStoneOnly)
+
+            if (DestroyedByStoneOnly)
             {
                 reportDamage = false;
                 damage = 0;
             }
 
+            SetHitPoint(HitPoint - damage, impactDirection);
 
-            this.SetHitPoint(this.HitPoint - damage, impactDirection);
-            finalDamage = damage;
+            modifiedDamage = damage;
+
             return false;
         }
 

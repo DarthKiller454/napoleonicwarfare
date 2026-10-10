@@ -4,21 +4,22 @@ using Alliance.Common.Extensions;
 using Alliance.Common.Extensions.GameModeMenu.Models;
 using Alliance.Common.Extensions.GameModeMenu.NetworkMessages.FromClient;
 using Alliance.Common.GameModes;
-using Alliance.Common.GameModes.Groupfight;
 using Alliance.Common.GameModes.Battle;
 using Alliance.Common.GameModes.BattleRoyale;
 using Alliance.Common.GameModes.Captain;
 using Alliance.Common.GameModes.CvC;
-using Alliance.Common.GameModes.TeamDeathmatch;
 using Alliance.Common.GameModes.Deathmatch;
+using Alliance.Common.GameModes.Groupfight;
 using Alliance.Common.GameModes.Halloween;
 using Alliance.Common.GameModes.Lobby;
 using Alliance.Common.GameModes.PvC;
 using Alliance.Common.GameModes.Siege;
 using Alliance.Common.GameModes.Story;
 using Alliance.Common.GameModes.Story.Models;
+using Alliance.Common.GameModes.TeamDeathmatch;
 using Alliance.Common.Utilities;
 using Alliance.Server.Core;
+using System;
 using TaleWorlds.MountAndBlade;
 using static Alliance.Common.Utilities.Logger;
 
@@ -31,45 +32,75 @@ namespace Alliance.Server.Extensions.GameModeMenu.Handlers
 			reg.Register<GameModePollRequestMessage>(HandleGameModePollRequest);
 			reg.Register<ScenarioPollRequestMessage>(HandleScenarioPollRequest);
 		}
+        /// <summary>
+        /// Handle game mode poll request
+        /// </summary>
+        public bool HandleGameModePollRequest(NetworkCommunicator peer, GameModePollRequestMessage message)
+        {
+            try
+            {
+                return HandleGameModePollRequestInternal(peer, message);
+            }
+            catch (Exception ex)
+            {
+                // ex.ToString() includes the full stack trace + inner exception, unlike the native invoker's log
+                Log($"HandleGameModePollRequest crashed:\n{ex}", LogLevel.Error);
+                return false;
+            }
+        }
+        private bool HandleGameModePollRequestInternal(NetworkCommunicator peer, GameModePollRequestMessage message)
+        {
+            Log("Step 1: checking isInLobby", LogLevel.Debug);
+            bool isInLobby = MultiplayerOptions.OptionType.GameType.GetStrValue() == "Lobby";
 
-		/// <summary>
-		/// Handle game mode poll request
-		/// </summary>
-		public bool HandleGameModePollRequest(NetworkCommunicator peer, GameModePollRequestMessage message)
-		{
-			// TODO : make use of PollRequest content to start a poll
-			bool isInLobby = MultiplayerOptions.OptionType.GameType.GetStrValue() == "Lobby";
-			string gameType = message.NativeOptions[MultiplayerOptions.OptionType.GameType].ToString();
+            Log("Step 2: reading gameType from message", LogLevel.Debug);
+            string gameType = message.NativeOptions[MultiplayerOptions.OptionType.GameType].ToString();
 
-			// Check whether the request comes from an admin, or is an authorized game mode launch from Lobby
-			if (message.SkipPoll && peer.IsAdmin() || isInLobby && Config.Instance.AuthorizePoll && GameModeMenuConstants.AVAILABLE_GAME_MODES.Contains(gameType))
-			{
-				string map = message.NativeOptions[MultiplayerOptions.OptionType.Map].ToString();
+            Log("Step 3: checking permissions", LogLevel.Debug);
+            bool skipPollAdmin = message.SkipPoll && peer.IsAdmin();
+            bool authorizedLobbyLaunch = isInLobby && Config.Instance.AuthorizePoll && GameModeMenuConstants.AVAILABLE_GAME_MODES.Contains(gameType);
 
-				// Check if the scene exist on server side
-				if (!SceneList.Scenes.Exists(sceneInfo => sceneInfo.Name == map))
-				{
-					SendMessageToPeer($"The scene \"{map}\" isn't available on this server", peer);
-					return false;
-				}
+            if (skipPollAdmin || authorizedLobbyLaunch)
+            {
+                Log("Step 4: reading map option", LogLevel.Debug);
+                string map = message.NativeOptions[MultiplayerOptions.OptionType.Map].ToString();
 
-				string cultureTeam1 = message.NativeOptions[MultiplayerOptions.OptionType.CultureTeam1].ToString();
-				string cultureTeam2 = message.NativeOptions[MultiplayerOptions.OptionType.CultureTeam2].ToString();
+                Log("Step 5: checking scene existence", LogLevel.Debug);
+                bool sceneExists = SceneList.Scenes != null && SceneList.Scenes.Exists(sceneInfo => sceneInfo.Name == map);
 
-				GameModeSettings gameModeSettings = CreateSettingsFromMessage(message);
-				GameModeStarter.Instance.StartMission(gameModeSettings);
+                if (!sceneExists)
+                {
+                    Log("Step 6: scene not found, notifying peer", LogLevel.Debug);
+                    SendMessageToPeer($"The scene \"{map}\" isn't available on this server", peer);
+                    return false;
+                }
 
-				string log = $"Starting {gameType} on {map} ({cultureTeam1} VS {cultureTeam2})...";
+                Log("Step 7: reading culture options", LogLevel.Debug);
+                string cultureTeam1 = message.NativeOptions[MultiplayerOptions.OptionType.CultureTeam1].ToString();
+                string cultureTeam2 = message.NativeOptions[MultiplayerOptions.OptionType.CultureTeam2].ToString();
 
-				Log(log, LogLevel.Information);
-				SendMessageToAll(log);
+                Log("Step 8: creating game mode settings", LogLevel.Debug);
+                GameModeSettings gameModeSettings = CreateSettingsFromMessage(message);
+                if (gameModeSettings == null)
+                {
+                    Log($"HandleGameModePollRequest: unknown GameType \"{gameType}\" from {peer.UserName}", LogLevel.Error);
+                    SendMessageToPeer($"Requested game mode \"{gameType}\" is not recognized by the server.", peer);
+                    return false;
+                }
 
-				return true;
-			}
-			return false;
-		}
+                Log("Step 9: starting mission", LogLevel.Debug);
+                GameModeStarter.Instance.StartMission(gameModeSettings);
 
-		private GameModeSettings CreateSettingsFromMessage(GameModePollRequestMessage message)
+                string log = $"Starting {gameType} on {map} ({cultureTeam1} VS {cultureTeam2})...";
+                Log(log, LogLevel.Information);
+                SendMessageToAll(log);
+
+                return true;
+            }
+            return false;
+        }
+
+        private GameModeSettings CreateSettingsFromMessage(GameModePollRequestMessage message)
 		{
 			GameModeSettings gameModeSettings;
 

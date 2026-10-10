@@ -70,7 +70,7 @@ namespace Alliance.Server.Patch.HarmonyPatch
             MultiplayerGameType missionType = (MultiplayerGameType)result;
 
             // Only skip the block that adds scores to stats for TeamDeathmatch or Siege
-            if (missionType == MultiplayerGameType.Siege || missionType == MultiplayerGameType.TeamDeathmatch)
+            if (missionType == MultiplayerGameType.Siege || missionType == MultiplayerGameType.TeamDeathmatch || missionType == MultiplayerGameType.Duel)
             {
                 // Return false to skip the block below inside OnEndMission
                 return false;
